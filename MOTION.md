@@ -94,7 +94,7 @@ GSAP equivalents: `power4.out` for character flips, `power1.inOut` for line/medi
 ## 13. Social hover previews
 
 - Studio Size footer: each social link holds a 16:9 video (`width 3.1rem` = 310 px @1440, radius 5 px) positioned above/below the label; on hover it fades in (`opacity 0.3 s ease-in-out`) and plays; leaving pauses and rewinds. The other links dim to `#434343` while one is hovered. First item aligns left, last aligns right.
-- **Ours:** same (310 px @1440, scales with vw), previews play at **1.2×** (owner). Instagram + LinkedIn = NORM's page-scroll clips; YouTube = a pan down a screenshot of youtube.com/@Rakhaa.
+- **Ours:** same (310 px @1440, scales with vw), previews play at **1.2×** (owner) and all three scroll at the same steady speed (170 px/s in the 800 px clip, before the 1.2×). Instagram + LinkedIn = NORM's page-scroll clips; YouTube = a pan down a screenshot of youtube.com/@Rakhaa.
 
 ## 14. Accordion (About → How we work)
 

@@ -231,3 +231,4 @@ These override the sections above where they differ.
 
 - **Font: Clash Display** (Indian Type Foundry, via Fontshare) to match the AI site, replacing Manrope everywhere. Self-hosted from the AI site's own files (`src/app/fonts/ClashDisplay-300…600.woff2`) with `next/font/local`; client logos and the share image redrawn in it. Comparison showed Figma's PNGs are not Clash (closest match there was Manrope); the owner chose the AI site. **To check before launch:** the Fontshare licence terms (the font files point to fontshare.com/terms).
 - **Reel player:** the outline play/pause cursor and the native cursor now hide together with the controls, and come back with them on any movement.
+- **Social previews:** Instagram, LinkedIn and YouTube now scroll at the same steady speed (measured 192 / 156 / eased → 170 px/s each); the YouTube one is only the @Rakhaa channel (old files removed and renamed so caches can't mix them).

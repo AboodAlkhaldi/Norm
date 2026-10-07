@@ -92,13 +92,14 @@ export const media = {
   studioCamera: video("stock-studio-camera", "Studio camera on a tripod recording", HD, MIXKIT),
   smoke: video("stock-smoke", "Smoke curling over a black background", HD, MIXKIT),
 
-  // Social previews (footer)
-  socialInstagram: video("social-instagram", "Scrolling preview of NORM's Instagram page", [800, 450], AI_SITE),
-  socialLinkedin: video("social-linkedin", "Scrolling preview of NORM's LinkedIn page", [800, 450], AI_SITE),
-  // Brief of the linked channel: a slow pan down a full-page screenshot of
+  // Social previews (footer). All three scroll at the same steady 170 px/s in the
+  // 800 px frame (then play at 1.2×, Footer.tsx); keep that speed when re-making them.
+  socialInstagram: video("social-instagram-v2", "Scrolling preview of NORM's Instagram page", [800, 450], AI_SITE),
+  socialLinkedin: video("social-linkedin-v2", "Scrolling preview of NORM's LinkedIn page", [800, 450], AI_SITE),
+  // Brief of the linked channel: a pan down a full-page screenshot of
   // youtube.com/@Rakhaa (header, videos, favourites) taken on 2026-10-07.
   socialYoutube: {
-    ...video("social-youtube-rakhaa", "Preview of the YouTube channel: header and latest videos", [800, 450], "youtube.com/@Rakhaa (screen capture)"),
+    ...video("social-youtube-v2", "Preview of the YouTube channel: header and latest videos", [800, 450], "youtube.com/@Rakhaa (screen capture)"),
     placeholder: false,
   } satisfies VideoAsset,
 
