@@ -1,26 +1,274 @@
 @import "tailwindcss";
 
+/*
+ * NORM design tokens.
+ * Values sampled from the Figma exports in /design (frames are 1440px wide at 1x).
+ * Sizes are fluid: "N at 1440" is written as calc(N * var(--u)), clamped so the
+ * layout scales 1280–1920 and stays readable on mobile.
+ */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* 1px at the 1440 design width */
+  --u: calc(100vw / 1440);
+
+  /* Colour — sampled from layouts.png */
+  --c-bg: #000000;
+  --c-fg: #f2f2f2;
+  --c-muted: #9d9d9d; /* tile categories, secondary text */
+  --c-dim: #5e5e5e; /* inactive service names */
+  --c-surface: #242424; /* CTA blocks, arrow buttons, popover */
+  --c-line: #262626; /* 1px dividers */
+  --c-line-strong: #333333; /* contact rows */
+  --c-pill: #1d1d1d; /* outlined pill border */
+  --c-accent: #d72121; /* logo dot */
+
+  /* Easing — shared by Studio Size and the AI site (see MOTION.md) */
+  --ease-ui: cubic-bezier(0.51, 0.01, 0.2, 1);
+  --ease-page: cubic-bezier(0.44, 0, 0.28, 0.99);
+
+  /* Layout */
+  --gutter: max(16px, calc(43 * var(--u)));
+  --header-x: max(16px, calc(50 * var(--u)));
+  --gap: max(12px, calc(26 * var(--u)));
+  --section: clamp(96px, calc(220 * var(--u)), 300px); /* vertical gap between Home sections */
+
+  /* Type scale (Manrope) — size at 1440 in comments */
+  --fs-display: clamp(44px, calc(108 * var(--u)), 150px); /* 108 */
+  --fs-list: clamp(36px, calc(80 * var(--u)), 112px); /* 80 */
+  --fs-statement: clamp(30px, calc(54 * var(--u)), 72px); /* 54 */
+  --fs-title: clamp(28px, calc(40 * var(--u)), 56px); /* 40 */
+  --fs-card: clamp(18px, calc(24 * var(--u)), 32px); /* 24 */
+  --fs-lead: clamp(18px, calc(22 * var(--u)), 30px); /* 22 */
+  --fs-body: clamp(15px, calc(18 * var(--u)), 24px); /* 18 */
+  --fs-ui: clamp(13px, calc(14 * var(--u)), 18px); /* 14 */
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-bg: var(--c-bg);
+  --color-fg: var(--c-fg);
+  --color-muted: var(--c-muted);
+  --color-dim: var(--c-dim);
+  --color-surface: var(--c-surface);
+  --color-line: var(--c-line);
+  --color-line-strong: var(--c-line-strong);
+  --color-pill: var(--c-pill);
+  --color-accent: var(--c-accent);
+
+  --font-sans: var(--font-manrope), ui-sans-serif, system-ui, sans-serif;
+
+  --text-display: var(--fs-display);
+  --text-display--line-height: 1.045;
+  --text-display--letter-spacing: -0.02em;
+  --text-display--font-weight: 600;
+  --text-list: var(--fs-list);
+  --text-list--line-height: 1.1;
+  --text-list--letter-spacing: -0.02em;
+  --text-list--font-weight: 600;
+  --text-statement: var(--fs-statement);
+  --text-statement--line-height: 1.06;
+  --text-statement--letter-spacing: -0.02em;
+  --text-statement--font-weight: 500;
+  --text-title: var(--fs-title);
+  --text-title--line-height: 1.15;
+  --text-title--letter-spacing: -0.01em;
+  --text-title--font-weight: 600;
+  --text-card: var(--fs-card);
+  --text-card--line-height: 1.25;
+  --text-card--font-weight: 500;
+  --text-lead: var(--fs-lead);
+  --text-lead--line-height: 1.18;
+  --text-body: var(--fs-body);
+  --text-body--line-height: 1.35;
+  --text-ui: var(--fs-ui);
+  --text-ui--line-height: 1.2;
+
+  --spacing-gutter: var(--gutter);
+  --spacing-header: var(--header-x);
+  --spacing-gap: var(--gap);
+  --spacing-section: var(--section);
+
+  --ease-ui: var(--ease-ui);
+  --ease-page: var(--ease-page);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+@layer base {
+  html {
+    background: var(--c-bg);
+    color: var(--c-fg);
+    -webkit-text-size-adjust: 100%;
+    /* Native scrollbar hidden — replaced by the floating ScrollRail. */
+    scrollbar-width: none;
+  }
+  html::-webkit-scrollbar {
+    display: none;
+  }
+
+  body {
+    background: var(--c-bg);
+    color: var(--c-fg);
+    font-family: var(--font-sans);
+    font-weight: 400;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+
+  ::selection {
+    background: var(--c-accent);
+    color: var(--c-fg);
+  }
+
+  /* Visible keyboard focus everywhere */
+  :focus-visible {
+    outline: 2px solid var(--c-fg);
+    outline-offset: 3px;
+    border-radius: 2px;
+  }
+
+  img,
+  video {
+    display: block;
+    max-width: 100%;
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+/* Lenis (https://github.com/darkroomengineering/lenis) recommended CSS */
+html.lenis,
+html.lenis body {
+  height: auto;
+}
+.lenis:not(.lenis-autoToggle).lenis-stopped {
+  overflow: clip;
+}
+.lenis [data-lenis-prevent] {
+  overscroll-behavior: contain;
+}
+
+/* Text masks used by line/char reveals */
+.mask-line {
+  display: block;
+  overflow: clip;
+  padding-bottom: 0.08em;
+  margin-bottom: -0.08em;
+}
+
+/* Client logo drift (AI site behaviour) */
+@keyframes logos {
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+/*
+ * Page transition (PageTransition.tsx, View Transitions API): the old screen stays
+ * still (frozen image) and the live new page slides up over it — 1 s, page ease
+ * (Studio Size / AI site). The header is its own layer and does not move.
+ */
+@media (prefers-reduced-motion: no-preference) {
+  ::view-transition-old(root),
+  ::view-transition-new(root) {
+    mix-blend-mode: normal;
+  }
+  ::view-transition-old(root) {
+    animation: none;
+  }
+  ::view-transition-new(root) {
+    animation: page-rise 1s var(--ease-page) both;
+  }
+  ::view-transition-group(site-header) {
+    animation: none;
+    z-index: 100;
+  }
+  ::view-transition-old(site-header) {
+    display: none;
+  }
+  ::view-transition-new(site-header) {
+    animation: none;
+  }
+}
+@keyframes page-rise {
+  from {
+    transform: translateY(100vh);
+  }
+}
+
+/* Intro (IntroOverlay). Shown by CSS from first paint when html[data-intro="playing"];
+   the failsafe hides it after 5 s even if JavaScript never runs. */
+#intro {
+  display: none;
+}
+html[data-intro="playing"] #intro {
+  display: block;
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  animation: intro-failsafe 0.01s 5s forwards;
+}
+html[data-intro="playing"] {
+  overflow: hidden;
+}
+html[data-intro="playing"] header a[aria-label="NORM — home"] {
+  opacity: 0;
+}
+@keyframes intro-failsafe {
+  to {
+    visibility: hidden;
+  }
+}
+
+/* Showreel REC dot */
+@keyframes rec {
+  50% {
+    opacity: 0.2;
+  }
+}
+
+/* Icon cursor (CursorLabel) replaces the native cursor on these targets */
+.has-cursor-label [data-cursor="drag"],
+.has-cursor-label [data-cursor="drag"] *,
+.has-cursor-label [data-cursor="play"],
+.has-cursor-label [data-cursor="pause"] {
+  cursor: none;
+}
+
+/* Mobile menu items */
+@keyframes menu-rise {
+  from {
+    transform: translateY(110%);
+  }
+}
+
+/* Hide scrollbars on carousel tracks */
+.no-scrollbar {
+  scrollbar-width: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+/*
+ * Reveal set-up. Without JS everything stays visible. With JS (html.js, set by an
+ * inline script before paint) reveal targets start hidden so there is no flash;
+ * GSAP makes them visible as it animates.
+ */
+[data-curtain] {
+  transform: scaleY(0);
+}
+@media (prefers-reduced-motion: no-preference) {
+  .js [data-reveal] {
+    visibility: hidden;
+  }
+  .js [data-curtain] {
+    transform: scaleY(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }
