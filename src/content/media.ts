@@ -98,7 +98,7 @@ export const media = {
   // Brief of the linked channel: a slow pan down a full-page screenshot of
   // youtube.com/@Rakhaa (header, videos, favourites) taken on 2026-10-07.
   socialYoutube: {
-    ...video("social-youtube", "Preview of the YouTube channel: header and latest videos", [800, 450], "youtube.com/@Rakhaa (screen capture)"),
+    ...video("social-youtube-rakhaa", "Preview of the YouTube channel: header and latest videos", [800, 450], "youtube.com/@Rakhaa (screen capture)"),
     placeholder: false,
   } satisfies VideoAsset,
 

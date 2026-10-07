@@ -210,7 +210,7 @@ These override the sections above where they differ.
 
 - **Carousel:** progress line removed — the outline ‹ › cursor is the only drag hint; the cursor switch is a smooth scale + fade on the pointer (as in the approved mockup).
 - **Page transitions:** now use the browser's View Transitions API (same look: new page rises over the frozen old one) — removes the short freeze at the end of each navigation.
-- **YouTube:** https://www.youtube.com/channel/UC4jcwaqzp9PPDx77_y541dQ
+- **YouTube:** https://www.youtube.com/@Rakhaa (see below)
 - **Scrollbar:** native scrollbar hidden; thin floating rail on the right appears while scrolling (or on edge hover) and fades out.
 
 ### Decisions — Studio Size alignment round (2026-10-07)
