@@ -226,3 +226,8 @@ These override the sections above where they differ.
 - **Team (About):** Studio Size layout — "Founded 2023" / "Team of 6" giant figures, 4:5 portrait rail with arrows. The Figma intro line under the team title was dropped (not in that layout); the title stays as a screen-reader heading.
 - **Reel player:** Studio Size–style controls with a frame timeline, hover frame preview, auto-hiding controls and a new close (held frame flies back into the hero and dissolves). The Letterbox opening is unchanged.
 - **Tab icon:** the AI site's favicon (black rounded square, white N, red dot) — copied from its /favicon.svg into src/app/icon.svg.
+
+### Decisions — font + player cursor (2026-10-07)
+
+- **Font: Clash Display** (Indian Type Foundry, via Fontshare) to match the AI site, replacing Manrope everywhere. Self-hosted from the AI site's own files (`src/app/fonts/ClashDisplay-300…600.woff2`) with `next/font/local`; client logos and the share image redrawn in it. Comparison showed Figma's PNGs are not Clash (closest match there was Manrope); the owner chose the AI site. **To check before launch:** the Fontshare licence terms (the font files point to fontshare.com/terms).
+- **Reel player:** the outline play/pause cursor and the native cursor now hide together with the controls, and come back with them on any movement.

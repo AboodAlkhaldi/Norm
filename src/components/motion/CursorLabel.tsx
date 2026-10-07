@@ -18,6 +18,8 @@ const isIcon = (v: string | null): v is Icon => !!v && (ICONS as readonly string
  * - any other text → a small outline label just below-right of the pointer ("Copy").
  * Desktop pointers only; off under reduced motion. Flash a label after an action with
  * `window.dispatchEvent(new CustomEvent("norm:cursor", { detail: "Copied" }))`.
+ * When a `data-cursor` changes under a still pointer (e.g. the showreel hiding its
+ * controls), dispatch `norm:cursor-recheck` so the cursor updates without a move.
  */
 export function CursorLabel() {
   const ref = useRef<HTMLDivElement>(null);
@@ -85,12 +87,14 @@ export function CursorLabel() {
       }, 1200);
     };
     const leave = () => set(null);
+    const onRecheck = () => recheck();
 
     window.addEventListener("pointermove", move, { passive: true });
     window.addEventListener("scroll", onScroll, { passive: true });
     window.addEventListener("pointerdown", down);
     window.addEventListener("pointerup", up);
     window.addEventListener("norm:cursor", onFlash);
+    window.addEventListener("norm:cursor-recheck", onRecheck);
     document.documentElement.addEventListener("pointerleave", leave);
     return () => {
       document.documentElement.classList.remove("has-cursor-label");
@@ -99,6 +103,7 @@ export function CursorLabel() {
       window.removeEventListener("pointerdown", down);
       window.removeEventListener("pointerup", up);
       window.removeEventListener("norm:cursor", onFlash);
+      window.removeEventListener("norm:cursor-recheck", onRecheck);
       document.documentElement.removeEventListener("pointerleave", leave);
       window.clearTimeout(flash);
       cancelAnimationFrame(raf);

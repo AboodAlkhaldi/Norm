@@ -41,7 +41,7 @@
   /* Media boxes (cards, rails, reel): Studio Size .05rem = 5px */
   --r-media: 5px;
 
-  /* Type scale (Manrope) — size at 1440 in comments */
+  /* Type scale (Clash Display) — size at 1440 in comments */
   --fs-display: clamp(44px, calc(108 * var(--u)), 150px); /* 108 */
   --fs-list: clamp(36px, calc(80 * var(--u)), 112px); /* 80 */
   --fs-statement: clamp(30px, calc(54 * var(--u)), 72px); /* 54 */
@@ -63,7 +63,7 @@
   --color-pill: var(--c-pill);
   --color-accent: var(--c-accent);
 
-  --font-sans: var(--font-manrope), ui-sans-serif, system-ui, sans-serif;
+  --font-sans: var(--font-clash), ui-sans-serif, system-ui, sans-serif;
 
   --text-display: var(--fs-display);
   --text-display--line-height: 0.9; /* Studio Size: 108 / 97 */

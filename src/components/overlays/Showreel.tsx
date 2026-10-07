@@ -301,6 +301,10 @@ function ShowreelOverlay({ isOpen, onClose, origin }: { isOpen: boolean; onClose
     const t = window.setTimeout(() => setIdle(true), IDLE_MS);
     return () => window.clearTimeout(t);
   }, [isOpen, paused, idle, hover]);
+  // The outline play/pause cursor leaves together with the controls (and comes back with them).
+  useEffect(() => {
+    window.dispatchEvent(new Event("norm:cursor-recheck"));
+  }, [idle]);
   const wake = () => {
     if (idle) setIdle(false);
   };
@@ -421,7 +425,7 @@ function ShowreelOverlay({ isOpen, onClose, origin }: { isOpen: boolean; onClose
           aria-hidden="true"
           onClick={toggle}
           data-cursor={idle ? undefined : paused ? "play" : "pause"}
-          className="absolute inset-0 cursor-pointer"
+          className={`absolute inset-0 ${idle ? "cursor-none" : "cursor-pointer"}`}
         />
       </div>
 

@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Manrope } from "next/font/google";
+import localFont from "next/font/local";
 import "./globals.css";
 import { site } from "@/content/site";
 import { NOINDEX } from "@/lib/env";
@@ -15,9 +15,18 @@ import { ScrollRail } from "@/components/layout/ScrollRail";
 import { IntroOverlay } from "@/components/brand/IntroOverlay";
 import { INTRO_BOOT_SCRIPT } from "@/lib/intro-boot";
 
-const manrope = Manrope({
-  subsets: ["latin"],
-  variable: "--font-manrope",
+/**
+ * Clash Display (Indian Type Foundry, via Fontshare) — the AI site's typeface (owner's
+ * choice). Files are the AI site's own /fonts/ClashDisplay-*.woff2.
+ */
+const clash = localFont({
+  src: [
+    { path: "./fonts/ClashDisplay-300.woff2", weight: "300", style: "normal" },
+    { path: "./fonts/ClashDisplay-400.woff2", weight: "400", style: "normal" },
+    { path: "./fonts/ClashDisplay-500.woff2", weight: "500", style: "normal" },
+    { path: "./fonts/ClashDisplay-600.woff2", weight: "600", style: "normal" },
+  ],
+  variable: "--font-clash",
   display: "swap",
 });
 
@@ -39,7 +48,7 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="en" className={manrope.variable} suppressHydrationWarning>
+    <html lang="en" className={clash.variable} suppressHydrationWarning>
       <head>
         {/* Before first paint: marks JS as available (reveal targets start hidden, no flash) and
             decides whether the intro plays this session. */}
