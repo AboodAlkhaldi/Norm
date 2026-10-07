@@ -18,7 +18,9 @@ export const useCarousel = () => useContext(CarouselContext);
 /**
  * Horizontal carousel (MOTION.md §8): pointer drag with momentum + snap to items,
  * prev/next arrows (placed by the parent in `header` / `footer`, see CarouselArrows), keyboard ←/→,
- * focus follows. The track bleeds to the right edge of the viewport like Figma.
+ * focus follows. The track bleeds to the right edge of the viewport like Figma; at the
+ * end it keeps a right safe area equal to the side margin (the track's padding-right),
+ * so the last card never touches the screen edge (Studio Size).
  * Drag affordance (owner's choice): the outline ‹ › cursor over the track (CursorLabel).
  */
 export function Carousel({
@@ -247,7 +249,7 @@ export function Carousel({
           }
         }}
       >
-        <div ref={track} className={`relative flex w-max gap-gap will-change-transform ${trackClassName}`} onDragStart={(e) => e.preventDefault()}>
+        <div ref={track} className={`relative flex w-max gap-gap pr-gutter will-change-transform ${trackClassName}`} onDragStart={(e) => e.preventDefault()}>
           {children}
         </div>
       </div>

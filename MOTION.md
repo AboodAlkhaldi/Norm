@@ -63,7 +63,7 @@ GSAP equivalents: `power4.out` for character flips, `power1.inOut` for line/medi
 ## 8. Carousels — drag + arrows
 
 - Studio Size Featured Work: Splide, `autoWidth`, `perMove: 1`, gap 26 px, arrows disabled at the ends, slide speed ≈ 500 ms.
-- **Ours (`Carousel`):** track moved with GSAP `x`. Drag: the track eases after the pointer (frame-rate-independent lerp, 38 % of the remaining distance per 60 Hz frame) instead of jumping; on release it is thrown with the pointer's velocity over the last ~100 ms and settles on the nearest card (0.6–1.1 s `--ease-page`, longer for longer throws). Arrows move one card, 0.8 s; disabled at the ends; keyboard ←/→.
+- **Ours (`Carousel`):** track moved with GSAP `x`. Drag: the track eases after the pointer (frame-rate-independent lerp, 38 % of the remaining distance per 60 Hz frame) instead of jumping; on release it is thrown with the pointer's velocity over the last ~100 ms and settles on the nearest card (0.6–1.1 s `--ease-page`, longer for longer throws). Arrows move one card, 0.8 s; disabled at the ends; keyboard ←/→. At the end the last card stops one side margin (50 px @1440, 16 px on phones) from the screen edge — a safe area like Studio Size's, never flush with the edge.
 - **Box sizes (owner: three sizes):** every rail tile has one height (534 @1440) and one of three widths — portrait 4:5 (427), tall 2:3 (356), landscape 4:3 (712) — from Studio Size's slider_with_text. Each project has a `format`; strips list theirs in content. Rails start on the 50 px text margin; strip paragraphs start where the 2nd and 3rd 4:5 tiles start.
 - **Drag affordance (owner's choice — no "Drag" word, no progress line):** the outline ‹ › cursor over the track (§16).
 
