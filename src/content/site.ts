@@ -27,8 +27,8 @@ export const site = {
   socials: [
     { label: "Instagram", href: "https://www.instagram.com/norm.prod/", preview: media.socialInstagram },
     { label: "LinkedIn", href: "https://www.linkedin.com/company/norm-prod/", preview: media.socialLinkedin },
-    // Link from the owner (2026-10-07). The hover preview video is still a placeholder.
-    { label: "YouTube", href: "https://www.youtube.com/channel/UC4jcwaqzp9PPDx77_y541dQ", preview: media.studioCamera },
+    // Link from the owner (2026-10-07); preview = brief of the channel.
+    { label: "YouTube", href: "https://www.youtube.com/channel/UC4jcwaqzp9PPDx77_y541dQ", preview: media.socialYoutube },
   ] satisfies Social[],
 
   notFound: {

@@ -93,6 +93,12 @@ export const media = {
   // Social previews (footer)
   socialInstagram: video("social-instagram", "Scrolling preview of NORM's Instagram page", [800, 450], AI_SITE),
   socialLinkedin: video("social-linkedin", "Scrolling preview of NORM's LinkedIn page", [800, 450], AI_SITE),
+  // Brief of the real channel (header + details panel), made from two screenshots of
+  // youtube.com/channel/UC4jcwaqzp9PPDx77_y541dQ on 2026-10-07. Re-make it once the channel has videos.
+  socialYoutube: {
+    ...video("social-youtube", "Preview of NORM Production's YouTube channel", [800, 450], "NORM YouTube channel (screen capture)"),
+    placeholder: false,
+  } satisfies VideoAsset,
 
   // Posture case study (Unsplash)
   postureWhiteRose: image("posture-white-rose", "A single white rose in a clear glass vase", [1208, 1600], "Unsplash photo-1526998482116"),
