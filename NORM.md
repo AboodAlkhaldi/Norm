@@ -212,3 +212,17 @@ These override the sections above where they differ.
 - **Page transitions:** now use the browser's View Transitions API (same look: new page rises over the frozen old one) — removes the short freeze at the end of each navigation.
 - **YouTube:** https://www.youtube.com/channel/UC4jcwaqzp9PPDx77_y541dQ
 - **Scrollbar:** native scrollbar hidden; thin floating rail on the right appears while scrolling (or on edge hover) and fades out.
+
+### Decisions — Studio Size alignment round (2026-10-07)
+
+- **Font:** Manrope everywhere (checked on every page: all text renders Manrope). Placeholder client logos and the share image now use Manrope too (they used Arial).
+- **Grid (Studio Size @1440):** one 50 px side margin for header, text and the start of every rail; hero title at 182, reel 1340 × 754 at 445, Featured Work at 1298; title row → rail 60 px; card text 30 px under the media; 220 px between sections; display headings at Studio Size's tighter 0.9 line height.
+- **Buttons:** one pill size for all buttons (54 px, 26 px padding, 14 px, 2 px `#1d1d1d` border) — including the header "Get in touch" (Studio Size uses 40 px there); all round buttons 50 px.
+- **Radius:** 5 px on all reel/video/card boxes.
+- **Rails:** three box sizes (4:5, 2:3, 4:3 at one height); each project has a format; smoother drag (eased follow + throw).
+- **Brands:** hover slows the marquee to 25 % (no stop).
+- **Services:** nothing selected at start or after leaving; Studio Size per-row video.
+- **Socials:** previews 20 % faster. **YouTube:** https://www.youtube.com/@Rakhaa (preview re-made from that channel).
+- **Team (About):** Studio Size layout — "Founded 2023" / "Team of 6" giant figures, 4:5 portrait rail with arrows. The Figma intro line under the team title was dropped (not in that layout); the title stays as a screen-reader heading.
+- **Reel player:** Studio Size–style controls with a frame timeline, hover frame preview, auto-hiding controls and a new close (held frame flies back into the hero and dissolves). The Letterbox opening is unchanged.
+- **Tab icon:** the AI site's favicon (black rounded square, white N, red dot) — copied from its /favicon.svg into src/app/icon.svg.

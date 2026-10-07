@@ -1,36 +1,51 @@
 import type { Project } from "@/content/types";
 import { AppLink } from "@/components/ui/AppLink";
 import { Media } from "@/components/media/Media";
+import { tileSizes, tileStyle } from "@/components/media/tiles";
 
-/** Project tile: hover-playing media + title + category (Figma: 432 × 541 media in carousels). */
+/**
+ * Project tile: hover-playing media + title + category.
+ * - `variant="rail"`: box size from the project's `format` (three sizes, components/media/tiles.ts)
+ * - `variant="grid"`: fills its grid column at 4:3 (Studio Size portfolio, 427 × 320)
+ */
 export function ProjectCard({
   project,
   className = "",
-  aspect = "aspect-[432/541]",
-  sizes = "(min-width: 768px) 30vw, 80vw",
+  variant = "rail",
+  sizes,
 }: {
   project: Project;
   className?: string;
-  aspect?: string;
+  variant?: "rail" | "grid";
   sizes?: string;
 }) {
+  const rail = variant === "rail";
   return (
-    <AppLink href={`/work/${project.slug}`} data-hover-root="" className={`group block ${className}`} draggable={false}>
-      <div className={`relative overflow-hidden rounded-[4px] bg-surface ${aspect}`}>
+    <AppLink
+      href={`/work/${project.slug}`}
+      data-hover-root=""
+      className={`group block ${rail ? "shrink-0" : ""} ${className}`}
+      style={rail ? { width: tileStyle(project.format).width } : undefined}
+      draggable={false}
+    >
+      <div
+        className={`relative overflow-hidden rounded-media bg-surface ${rail ? "" : "aspect-[4/3]"}`}
+        style={rail ? { height: tileStyle(project.format).height } : undefined}
+      >
         <div className="size-full transition-transform duration-700 ease-page group-hover:scale-[1.03]">
-          <Media media={project.cover} mode="hover" sizes={sizes} />
+          <Media media={project.cover} mode="hover" sizes={sizes ?? (rail ? tileSizes(project.format) : "(min-width: 768px) 30vw, 100vw")} />
         </div>
         {/* AI site "card-cursor": round arrow that scales in on hover / keyboard focus. */}
         <span
           aria-hidden="true"
-          className="absolute bottom-5 right-5 grid size-[52px] scale-[0.8] place-items-center rounded-full bg-fg text-bg opacity-0 transition-[opacity,scale] duration-300 ease-ui group-hover:scale-100 group-hover:opacity-100 group-focus-visible:scale-100 group-focus-visible:opacity-100"
+          className="absolute bottom-5 right-5 grid size-circle scale-[0.8] place-items-center rounded-full bg-fg text-bg opacity-0 transition-[opacity,scale] duration-300 ease-ui group-hover:scale-100 group-hover:opacity-100 group-focus-visible:scale-100 group-focus-visible:opacity-100"
         >
           <svg viewBox="0 0 16 16" className="size-4" fill="none" stroke="currentColor" strokeWidth="1.5">
             <path d="M4 12L12 4M5.5 4H12v6.5" strokeLinecap="round" strokeLinejoin="round" />
           </svg>
         </span>
       </div>
-      <div className="pt-[clamp(14px,calc(22*var(--u)),30px)]">
+      <div className="pt-[clamp(16px,calc(30*var(--u)),40px)]">
         <h3 className="text-card">{project.title}</h3>
         <p className="mt-0.5 text-body text-muted">{project.category}</p>
       </div>

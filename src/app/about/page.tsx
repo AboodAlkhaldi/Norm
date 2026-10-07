@@ -5,12 +5,12 @@ import { pageMetadata } from "@/lib/metadata";
 import { PageIntro } from "@/components/sections/PageIntro";
 import { ImageStrip } from "@/components/sections/ImageStrip";
 import { KineticType } from "@/components/sections/KineticType";
-import { TeamGrid } from "@/components/sections/TeamGrid";
+import { TeamSection } from "@/components/sections/TeamSection";
 import { Accordion } from "@/components/sections/Accordion";
 import { CtaBlock } from "@/components/sections/CtaBlock";
 import { FeaturedWork } from "@/components/sections/FeaturedWork";
 import { Media } from "@/components/media/Media";
-import { MediaReveal, Reveal, RevealLines } from "@/components/motion/Reveal";
+import { MediaReveal, RevealLines } from "@/components/motion/Reveal";
 
 export const metadata = pageMetadata({
   title: "About",
@@ -30,7 +30,7 @@ export default function AboutPage() {
         className="mt-[clamp(32px,calc(60*var(--u)),80px)]"
         label="NORM at work"
         items={aboutPage.strip}
-        widths={[384, 712, 554]}
+        formats={aboutPage.stripFormats}
         paragraphs={aboutPage.paragraphs}
         priority={3}
       />
@@ -47,22 +47,12 @@ export default function AboutPage() {
           className="mt-[clamp(40px,calc(86*var(--u)),110px)]"
           label="Different perspectives"
           items={[perspectives.media[0], <KineticType key="kinetic" lines={perspectives.kinetic} />, perspectives.media[1]]}
-          widths={[384, 712, 554]}
+          formats={perspectives.formats}
           paragraphs={perspectives.paragraphs}
         />
       </section>
 
-      <section className={`${gap} px-gutter`} aria-labelledby="team">
-        <RevealLines as="h2" className="text-title">
-          <span id="team">{aboutPage.team.title}</span>
-        </RevealLines>
-        <Reveal className="mt-[clamp(20px,calc(40*var(--u)),52px)] max-w-[calc(700*var(--u))] max-md:max-w-none">
-          <p className="text-card font-normal">{aboutPage.team.intro}</p>
-        </Reveal>
-        <div className="mt-[clamp(24px,calc(40*var(--u)),52px)]">
-          <TeamGrid team={team} />
-        </div>
-      </section>
+      <TeamSection team={team} founded={aboutPage.team.founded} title={aboutPage.team.title} className={gap} />
 
       <section className={`${gap} px-gutter`} aria-labelledby="how-we-work">
         <RevealLines as="h2" className="mb-[clamp(16px,calc(24*var(--u)),32px)] text-title">
@@ -77,7 +67,7 @@ export default function AboutPage() {
         </RevealLines>
         <div className="mt-[clamp(24px,calc(36*var(--u)),48px)] grid gap-gap md:grid-cols-3">
           {inside.media.map((m, i) => (
-            <MediaReveal key={i} delay={i * 0.08} className="aspect-[434/299] rounded-[4px] bg-surface">
+            <MediaReveal key={i} delay={i * 0.08} className="aspect-[434/299] rounded-media bg-surface">
               <Media media={m} sizes="(min-width: 768px) 30vw, 100vw" />
             </MediaReveal>
           ))}

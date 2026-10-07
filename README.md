@@ -105,7 +105,13 @@ ffmpeg -i in.mov -t 8 -vf "scale='min(1280,iw)':-2" -c:v libx264 -preset slow -c
 ffmpeg -i out.mp4 -frames:v 1 -q:v 3 out.jpg
 ```
 
-**Showreel** (`media.showreel`): two files so playback never stalls — a 720p version (`src`, ≈1.6 Mbps) used by default and an optional 1080p version (`srcHigh`) used only on large screens with a fast connection. Encode the 720p one with `-crf 24 -maxrate 1600k -bufsize 3200k` and keep the audio track (drop `-an`) once the real reel has sound; then set `hasAudio: true`.
+**Showreel** (`media.showreel`): two files so playback never stalls — a 720p version (`src`, ≈1.6 Mbps) used by default and an optional 1080p version (`srcHigh`) used only on large screens with a fast connection. Encode the 720p one with `-crf 24 -maxrate 1600k -bufsize 3200k` and keep the audio track (drop `-an`) once the real reel has sound; then set `hasAudio: true`. When the reel changes, re-make the player's timeline frames (60 frames, 10 × 6 sheet) and update `frames` in `media.ts` if the size changes:
+
+```bash
+ffmpeg -i showreel-720.mp4 -vf "fps=60/DURATION_IN_SECONDS,scale=192:-2:flags=lanczos,tile=10x6" -frames:v 1 -q:v 4 showreel-frames.jpg
+```
+
+**Rail box sizes**: each project has `format: "portrait" | "tall" | "landscape"` (4:5, 2:3, 4:3 at one height — `src/components/media/tiles.ts`); image strips take `formats` from their content file.
 
 **Logo**: the nav logo and footer wordmark share one traced placeholder in `src/components/brand/logo-geometry.ts`. Replace the path data there (or swap `Logo.tsx` / `Wordmark.tsx` to use the official SVG).
 

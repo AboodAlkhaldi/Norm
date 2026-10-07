@@ -8,7 +8,6 @@ import {
   useMemo,
   useRef,
   useState,
-  type ComponentProps,
   type ReactNode,
 } from "react";
 import { media } from "@/content/media";
@@ -29,11 +28,13 @@ type Ctx = {
 const ShowreelContext = createContext<Ctx>({ open: () => {}, warm: () => {}, isOpen: false });
 export const useShowreel = () => useContext(ShowreelContext);
 
-const FPS = 25;
 const pad = (n: number) => String(Math.floor(n)).padStart(2, "0");
-/** HH:MM:SS:FF */
-const timecode = (s: number) => `${pad(s / 3600)}:${pad((s / 60) % 60)}:${pad(s % 60)}:${pad((s % 1) * FPS)}`;
+/** MM:SS */
 const short = (s: number) => `${pad(s / 60)}:${pad(s % 60)}`;
+/** Controls hide after this long without pointer movement while the reel plays. */
+const IDLE_MS = 2600;
+/** Thumbnails shown inside the timeline pill. */
+const STRIP = 9;
 
 /**
  * Pick the reel quality once per session: 1080p only on large screens with a
@@ -73,9 +74,8 @@ export function ShowreelProvider({ children }: { children: ReactNode }) {
   );
 }
 
-/** Copy the frame currently showing in `from`'s video onto the canvas (the preview "becomes" the film). */
-function captureFrame(from: HTMLElement | null, canvas: HTMLCanvasElement | null) {
-  const v = from?.querySelector("video");
+/** Copy the frame currently showing in `v` onto the canvas. */
+function drawFrame(v: HTMLVideoElement | null | undefined, canvas: HTMLCanvasElement | null) {
   if (!canvas || !v || v.readyState < 2 || !v.videoWidth) return false;
   canvas.width = v.videoWidth;
   canvas.height = v.videoHeight;
@@ -87,37 +87,75 @@ function captureFrame(from: HTMLElement | null, canvas: HTMLCanvasElement | null
   }
 }
 
+type Frames = NonNullable<typeof media.showreel.frames>;
+
 /**
- * Showreel — opening "Letterbox" + player "Viewfinder" (owner's choice, MOTION.md §15):
- * the hero box widens to full screen, then cinema bars slide in from the top and
- * bottom while the picture settles into the reel's wide format. The bars carry a
- * camera-viewfinder UI: corner brackets, blinking REC dot, frame timecode, a red
- * scrubbable timeline and text controls. Closing plays the same timeline backwards
- * and returns to the exact scroll position.
+ * One frame of the reel's thumbnail sprite filling its box. The box keeps the
+ * frame's aspect ratio; percentage positions make it work at any size.
+ */
+function SpriteFrame({ frames, index, className = "" }: { frames: Frames; index: number; className?: string }) {
+  const rows = Math.ceil(frames.count / frames.cols);
+  const i = Math.max(0, Math.min(frames.count - 1, index));
+  const col = i % frames.cols;
+  const row = Math.floor(i / frames.cols);
+  return (
+    <span
+      aria-hidden="true"
+      className={`block bg-no-repeat ${className}`}
+      style={{
+        aspectRatio: `${frames.width} / ${frames.height}`,
+        backgroundImage: `url(${frames.src})`,
+        backgroundSize: `${frames.cols * 100}% ${rows * 100}%`,
+        backgroundPosition: `${(col / (frames.cols - 1)) * 100}% ${(row / Math.max(1, rows - 1)) * 100}%`,
+      }}
+    />
+  );
+}
+
+/**
+ * Showreel — opening "Letterbox" (owner's choice, MOTION.md §15): the hero box widens
+ * to full screen, then cinema bars slide in while the picture settles into the reel's
+ * wide format.
+ *
+ * Player (owner: Studio Size's controls, improved): a centred group in the bottom bar
+ * — play/pause circle, a timeline pill made of frames from the reel (unplayed part
+ * dimmed, red playhead; hovering shows a larger frame and the time), sound circle —
+ * and a close circle bottom-right. Progress is drawn every frame (no stepping),
+ * scrubbing pauses and resumes, and the controls and cursor fade away while the reel
+ * plays untouched. Closing: the controls drop away, the sound fades, the current
+ * frame is held while the picture flies back into the hero box (bars retracting at
+ * the same time) and dissolves into the live preview; the page is exactly where it was.
  */
 function ShowreelOverlay({ isOpen, onClose, origin }: { isOpen: boolean; onClose: () => void; origin: HTMLElement | null }) {
   const root = useRef<HTMLDivElement>(null);
   const box = useRef<HTMLDivElement>(null);
-  const frame = useRef<HTMLCanvasElement>(null);
+  const frame = useRef<HTMLCanvasElement>(null); // hero frame (opening)
+  const still = useRef<HTMLCanvasElement>(null); // reel frame held while closing
   const barTop = useRef<HTMLDivElement>(null);
   const barBottom = useRef<HTMLDivElement>(null);
   const ui = useRef<HTMLDivElement>(null);
+  const track = useRef<HTMLDivElement>(null);
+  const dim = useRef<HTMLSpanElement>(null);
   const video = useRef<HTMLVideoElement | null>(null);
-  const tl = useRef<gsap.core.Timeline | null>(null);
+  const openTl = useRef<gsap.core.Timeline | null>(null);
+  const closeTl = useRef<gsap.core.Timeline | null>(null);
   const savedScroll = useRef(0);
   const opener = useRef<HTMLElement | null>(null);
+  const scrub = useRef<{ wasPlaying: boolean } | null>(null);
   const originRef = useRef(origin);
   useEffect(() => {
     originRef.current = origin;
   }, [origin]);
 
+  const frames = media.showreel.frames;
   const [src] = useState(chooseSource);
   const [paused, setPaused] = useState(false);
   const [muted, setMuted] = useState(true);
   const [time, setTime] = useState(0);
   const [duration, setDuration] = useState(0);
   const [buffering, setBuffering] = useState(false);
-  const [scrubbing, setScrubbing] = useState(false);
+  const [idle, setIdle] = useState(false);
+  const [hover, setHover] = useState<{ x: number; t: number } | null>(null);
 
   useFocusTrap(root, isOpen);
 
@@ -128,70 +166,104 @@ function ShowreelOverlay({ isOpen, onClose, origin }: { isOpen: boolean; onClose
     const instant = prefersReducedMotion();
 
     if (isOpen) {
-      // Re-opened while the close was still running: just play forward again.
-      if (tl.current && tl.current.reversed()) {
-        tl.current.timeScale(1).play();
-        v?.play().catch(() => {});
+      const g = geometry();
+      el.style.setProperty("--bar", `${g.bar}px`);
+      // Re-opened while closing: go straight back to the player.
+      if (closeTl.current) {
+        closeTl.current.kill();
+        closeTl.current = null;
+        gsap.to(box.current, { left: 0, top: g.bar, width: g.vw, height: g.bandH, borderRadius: 0, opacity: 1, duration: 0.5, ease: "page" });
+        gsap.to([barTop.current, barBottom.current], { height: g.bar, duration: 0.5, ease: "page" });
+        gsap.to(still.current, { opacity: 0, duration: 0.3, ease: "ui" });
+        gsap.to(ui.current, { opacity: 1, y: 0, duration: 0.4, ease: "ui" });
+        if (v) {
+          gsap.to(v, { volume: 1, duration: 0.3, overwrite: true });
+          v.play().catch(() => {});
+        }
+        setPaused(false);
         return;
       }
       opener.current = document.activeElement as HTMLElement | null;
       savedScroll.current = window.scrollY;
       lockScroll(true);
-      const g = geometry();
-      el.style.setProperty("--bar", `${g.bar}px`);
       gsap.set(el, { display: "block", visibility: "visible", opacity: 1 });
-      const hasFrame = captureFrame(originRef.current, frame.current);
+      gsap.set(still.current, { opacity: 0 });
+      const hasFrame = drawFrame(originRef.current?.querySelector("video"), frame.current);
       gsap.set(frame.current, { opacity: hasFrame ? 1 : 0 });
       const r = instant ? null : (originRef.current?.getBoundingClientRect() ?? null);
       const onScreen = !!r && r.width > 0 && r.bottom > 0 && r.top < g.vh;
 
-      const t = gsap.timeline({
-        paused: true,
-        onReverseComplete: () => {
-          gsap.set(el, { display: "none", visibility: "hidden" });
-          tl.current = null;
-          video.current?.pause();
-          lockScroll(false);
-          // Land exactly where the visitor was.
-          const lenis = getLenis();
-          if (lenis) lenis.scrollTo(savedScroll.current, { immediate: true, force: true });
-          else window.scrollTo(0, savedScroll.current);
-          opener.current?.focus?.({ preventScroll: true });
-        },
-      });
+      const t = gsap.timeline({ onComplete: () => void (openTl.current = null) });
       if (onScreen && r) {
         t.fromTo(
           box.current,
-          { left: r.left, top: r.top, width: r.width, height: r.height, borderRadius: 4 },
+          { left: r.left, top: r.top, width: r.width, height: r.height, borderRadius: 5, opacity: 1 },
           { left: 0, top: 0, width: g.vw, height: g.vh, borderRadius: 0, duration: 0.95, ease: "page" },
         )
           .fromTo([barTop.current, barBottom.current], { height: 0 }, { height: g.bar, duration: 0.65, ease: "page" }, 0.7)
           .to(box.current, { top: g.bar, height: g.bandH, duration: 0.65, ease: "page" }, 0.7)
           .to(frame.current, { opacity: 0, duration: 0.5, ease: "ui" }, 0.85)
-          .fromTo(ui.current, { opacity: 0 }, { opacity: 1, duration: 0.5, ease: "ui" }, 1.15);
+          .fromTo(ui.current, { opacity: 0, y: 14 }, { opacity: 1, y: 0, duration: 0.6, ease: "page" }, 1.15);
       } else {
-        gsap.set(box.current, { left: 0, top: g.bar, width: g.vw, height: g.bandH, borderRadius: 0 });
+        gsap.set(box.current, { left: 0, top: g.bar, width: g.vw, height: g.bandH, borderRadius: 0, opacity: 1 });
         gsap.set([barTop.current, barBottom.current], { height: g.bar });
         gsap.set(frame.current, { opacity: 0 });
         t.fromTo(el, { opacity: 0 }, { opacity: 1, duration: instant ? 0 : 0.5, ease: "page" }).fromTo(
           ui.current,
-          { opacity: 0 },
+          { opacity: 0, y: 0 },
           { opacity: 1, duration: instant ? 0 : 0.4, ease: "ui" },
           instant ? 0 : 0.2,
         );
       }
-      tl.current = t;
-      t.play();
+      openTl.current = t;
       if (v) {
+        gsap.killTweensOf(v);
+        v.volume = 1;
         v.currentTime = 0;
         v.play().catch(() => setPaused(true));
       }
       setPaused(false);
+      setIdle(false);
       el.querySelector<HTMLButtonElement>("[data-autofocus]")?.focus({ preventScroll: true });
-    } else if (tl.current) {
-      // Close = the opening, backwards (a little quicker).
-      tl.current.timeScale(1.35).reverse();
+      return;
     }
+
+    // Close (only if actually open and not already closing).
+    if (el.style.display === "none" || closeTl.current) return;
+    openTl.current?.kill();
+    openTl.current = null;
+    setHover(null);
+    const g = geometry();
+    // Hold the current reel frame so nothing changes under the moving picture.
+    gsap.set(still.current, { opacity: drawFrame(v, still.current) ? 1 : 0 });
+    const r = instant ? null : (originRef.current?.getBoundingClientRect() ?? null);
+    const onScreen = !!r && r.width > 0 && r.bottom > 0 && r.top < g.vh;
+    const finish = () => {
+      closeTl.current = null;
+      gsap.set(el, { display: "none", visibility: "hidden" });
+      gsap.set(box.current, { opacity: 1 });
+      if (v) {
+        v.pause();
+        v.volume = 1;
+      }
+      lockScroll(false);
+      // Land exactly where the visitor was.
+      const lenis = getLenis();
+      if (lenis) lenis.scrollTo(savedScroll.current, { immediate: true, force: true });
+      else window.scrollTo(0, savedScroll.current);
+      opener.current?.focus?.({ preventScroll: true });
+    };
+    const t = gsap.timeline({ onComplete: finish });
+    t.to(ui.current, { opacity: 0, y: 14, duration: instant ? 0 : 0.3, ease: "ui" }, 0);
+    if (v) t.to(v, { volume: 0, duration: instant ? 0 : 0.45, ease: "none", onComplete: () => v.pause() }, 0);
+    if (onScreen && r) {
+      t.to([barTop.current, barBottom.current], { height: 0, duration: 0.75, ease: "page" }, 0.12)
+        .to(box.current, { left: r.left, top: r.top, width: r.width, height: r.height, borderRadius: 5, duration: 0.95, ease: "page" }, 0.12)
+        .to(box.current, { opacity: 0, duration: 0.4, ease: "ui" }, 0.8);
+    } else {
+      t.to(el, { opacity: 0, duration: instant ? 0 : 0.5, ease: "page" }, 0.1);
+    }
+    closeTl.current = t;
   }, [isOpen]);
 
   // Keep the letterbox right if the window is resized while open.
@@ -200,13 +272,38 @@ function ShowreelOverlay({ isOpen, onClose, origin }: { isOpen: boolean; onClose
     const onResize = () => {
       const g = geometry();
       root.current?.style.setProperty("--bar", `${g.bar}px`);
-      if (tl.current && tl.current.progress() < 1) return;
+      if (openTl.current) return;
       gsap.set(box.current, { left: 0, top: g.bar, width: g.vw, height: g.bandH });
       gsap.set([barTop.current, barBottom.current], { height: g.bar });
     };
     window.addEventListener("resize", onResize);
     return () => window.removeEventListener("resize", onResize);
   }, [isOpen]);
+
+  // Timeline drawn every frame from the video clock (smooth, no 4 Hz steps).
+  useEffect(() => {
+    if (!isOpen) return;
+    let raf = 0;
+    const tick = () => {
+      const v = video.current;
+      if (v && v.duration && dim.current && !scrub.current) {
+        dim.current.style.left = `${(v.currentTime / v.duration) * 100}%`;
+      }
+      raf = requestAnimationFrame(tick);
+    };
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, [isOpen]);
+
+  // Hide the controls (and cursor) after a moment without movement while playing.
+  useEffect(() => {
+    if (!isOpen || paused || idle) return;
+    const t = window.setTimeout(() => setIdle(true), IDLE_MS);
+    return () => window.clearTimeout(t);
+  }, [isOpen, paused, idle, hover]);
+  const wake = () => {
+    if (idle) setIdle(false);
+  };
 
   const toggle = useCallback(() => {
     const v = video.current;
@@ -234,13 +331,14 @@ function ShowreelOverlay({ isOpen, onClose, origin }: { isOpen: boolean; onClose
     setTime(v.currentTime);
   }, []);
 
-  // Keyboard: Esc closes, Space pauses, M mutes, ←/→ skip 5 s.
+  // Keyboard: Esc closes, Space pauses, M mutes, ←/→ skip 5 s. Any key shows the controls.
   useEffect(() => {
     if (!isOpen) return;
     const onKey = (e: KeyboardEvent) => {
       const target = e.target as HTMLElement | null;
       const onButton = !!target?.closest("button");
       const onSlider = !!target?.closest("[role=slider]");
+      setIdle(false);
       if (e.key === "Escape") onClose();
       else if (e.key === " " && !onButton) {
         e.preventDefault();
@@ -253,17 +351,28 @@ function ShowreelOverlay({ isOpen, onClose, origin }: { isOpen: boolean; onClose
     return () => window.removeEventListener("keydown", onKey);
   }, [isOpen, onClose, toggle, toggleSound, seekBy]);
 
-  const scrubTo = (clientX: number, el: HTMLElement) => {
+  /** Position on the timeline under clientX (fraction + px from its left edge). */
+  const at = (clientX: number) => {
+    const r = track.current!.getBoundingClientRect();
+    const x = Math.min(r.width, Math.max(0, clientX - r.left));
+    return { p: r.width ? x / r.width : 0, x };
+  };
+  const seekTo = (p: number) => {
     const v = video.current;
     if (!v || !v.duration) return;
-    const r = el.getBoundingClientRect();
-    v.currentTime = Math.min(1, Math.max(0, (clientX - r.left) / r.width)) * v.duration;
-    setTime(v.currentTime);
+    if (dim.current) dim.current.style.left = `${p * 100}%`;
+    const t = p * v.duration;
+    v.currentTime = t;
+    setTime(t);
   };
 
-  const progress = duration ? (time / duration) * 100 : 0;
-  const bracket = "pointer-events-none absolute size-[clamp(14px,calc(22*var(--u)),28px)] border-white/55";
-  const side = "clamp(16px,calc(43*var(--u)),56px)";
+  const hoverFrame = frames && hover && duration ? Math.floor((hover.t / duration) * frames.count) : 0;
+  const circle = "group/btn grid size-circle shrink-0 place-items-center overflow-hidden rounded-full bg-pill text-fg";
+  // Studio Size hover: a lighter disc grows from the centre.
+  const overlay =
+    "pointer-events-none absolute inset-0 scale-0 rounded-full bg-[#434343] transition-transform duration-300 ease-ui group-hover/btn:scale-100";
+  // Centred in the bottom bar; 20px from the bottom when the bar is too thin.
+  const bottom = "max(20px, calc(var(--bar) / 2 - var(--circle) / 2))";
 
   return (
     <div
@@ -271,9 +380,11 @@ function ShowreelOverlay({ isOpen, onClose, origin }: { isOpen: boolean; onClose
       role="dialog"
       aria-modal="true"
       aria-label="NORM showreel"
-      className="fixed inset-0 z-[80]"
+      className={`fixed inset-0 z-[80] ${idle ? "cursor-none" : ""}`}
       style={{ display: "none", visibility: "hidden" }}
       data-lenis-prevent=""
+      onPointerMove={wake}
+      onPointerDown={wake}
     >
       {/* The picture */}
       <div ref={box} className="absolute overflow-hidden bg-black" style={{ left: 0, top: 0, width: "100%", height: "100%" }}>
@@ -295,20 +406,21 @@ function ShowreelOverlay({ isOpen, onClose, origin }: { isOpen: boolean; onClose
             video.current = el;
           }}
           onTimeUpdate={(e) => {
-            if (!scrubbing) setTime(e.currentTarget.currentTime);
+            if (!scrub.current) setTime(e.currentTarget.currentTime);
           }}
           onLoadedMetadata={(e) => setDuration(e.currentTarget.duration)}
           onWaiting={() => setBuffering(true)}
           onPlaying={() => setBuffering(false)}
         />
-        {/* Frame of the hero preview, shown while the box grows, then dissolved into the reel */}
+        {/* Hero preview frame (opening) and held reel frame (closing) */}
         <canvas ref={frame} aria-hidden="true" className="pointer-events-none absolute inset-0 size-full object-cover" />
+        <canvas ref={still} aria-hidden="true" className="pointer-events-none absolute inset-0 size-full object-cover opacity-0" />
         <button
           type="button"
           tabIndex={-1}
           aria-hidden="true"
           onClick={toggle}
-          data-cursor={paused ? "play" : "pause"}
+          data-cursor={idle ? undefined : paused ? "play" : "pause"}
           className="absolute inset-0 cursor-pointer"
         />
       </div>
@@ -317,66 +429,132 @@ function ShowreelOverlay({ isOpen, onClose, origin }: { isOpen: boolean; onClose
       <div ref={barTop} className="absolute inset-x-0 top-0 bg-bg" style={{ height: 0 }} />
       <div ref={barBottom} className="absolute inset-x-0 bottom-0 bg-bg" style={{ height: 0 }} />
 
-      {/* Viewfinder UI */}
+      {/* Controls. GSAP fades this layer on open / close; the inner layer handles idle. */}
       <div ref={ui} className="pointer-events-none absolute inset-0 text-fg" style={{ opacity: 0 }}>
-        <span className={`${bracket} border-l border-t`} style={{ left: side, top: "calc(var(--bar) + 16px)" }} />
-        <span className={`${bracket} border-r border-t`} style={{ right: side, top: "calc(var(--bar) + 16px)" }} />
-        <span className={`${bracket} border-b border-l`} style={{ left: side, bottom: "calc(var(--bar) + 16px)" }} />
-        <span className={`${bracket} border-b border-r`} style={{ right: side, bottom: "calc(var(--bar) + 16px)" }} />
+        <div className={`absolute inset-0 transition-[opacity,translate] duration-500 ease-ui ${idle ? "translate-y-3 opacity-0" : "opacity-100"}`}>
+          <div
+            className="pointer-events-auto absolute left-1/2 flex -translate-x-1/2 items-center gap-[10px]"
+            style={{ bottom }}
+            onPointerEnter={() => setIdle(false)}
+          >
+            <button type="button" onClick={toggle} data-autofocus="" aria-label={paused ? "Play" : "Pause"} className={`${circle} relative`}>
+              <span className={overlay} />
+              {buffering && !paused ? (
+                <svg viewBox="0 0 24 24" className="relative size-5 animate-spin" aria-hidden="true">
+                  <circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" strokeOpacity="0.25" strokeWidth="2" />
+                  <path d="M12 3a9 9 0 0 1 9 9" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+                </svg>
+              ) : paused ? (
+                <svg viewBox="0 0 12 14" className="relative ml-0.5 size-3" aria-hidden="true">
+                  <path d="M12 7L0 14V0z" fill="currentColor" />
+                </svg>
+              ) : (
+                <svg viewBox="0 0 8 16" className="relative h-3.5 w-2" aria-hidden="true">
+                  <path d="M0 15V0h2v15zM8 0v15H6V0z" fill="currentColor" />
+                </svg>
+              )}
+            </button>
 
-        <div className="absolute flex items-center gap-6 text-ui" style={{ left: side, right: side, top: "max(16px, calc(var(--bar) / 2 - 14px))" }}>
-          <div className="flex items-center gap-3">
-            <span
+            {/* Timeline pill made of reel frames */}
+            <div
+              ref={track}
+              role="slider"
+              tabIndex={0}
+              aria-label="Seek"
+              aria-valuemin={0}
+              aria-valuemax={Math.round(duration)}
+              aria-valuenow={Math.round(time)}
+              aria-valuetext={`${short(time)} of ${short(duration)}`}
+              onKeyDown={(e) => {
+                if (e.key === "ArrowRight") seekBy(5);
+                if (e.key === "ArrowLeft") seekBy(-5);
+                if (e.key === "Home") seekBy(-1e6);
+                if (e.key === "End") seekBy(1e6);
+              }}
+              onPointerDown={(e) => {
+                const v = video.current;
+                e.currentTarget.setPointerCapture(e.pointerId);
+                scrub.current = { wasPlaying: !!v && !v.paused };
+                v?.pause();
+                seekTo(at(e.clientX).p);
+              }}
+              onPointerMove={(e) => {
+                const { p, x } = at(e.clientX);
+                setHover({ x, t: p * duration });
+                if (scrub.current) seekTo(p);
+              }}
+              onPointerUp={() => {
+                const s = scrub.current;
+                scrub.current = null;
+                if (s?.wasPlaying) video.current?.play().catch(() => {});
+              }}
+              onPointerLeave={() => {
+                if (!scrub.current) setHover(null);
+              }}
+              className="relative h-circle w-[clamp(180px,calc(320*var(--u)),440px)] cursor-pointer touch-none rounded-[70px] bg-black"
+            >
+              <div className="absolute inset-0 flex overflow-hidden rounded-[70px]">
+                {frames &&
+                  Array.from({ length: STRIP }, (_, k) => (
+                    <span key={k} className="relative h-full min-w-0 flex-1 overflow-hidden">
+                      <SpriteFrame
+                        frames={frames}
+                        index={Math.round(((k + 0.5) / STRIP) * frames.count)}
+                        className="absolute left-1/2 top-0 h-full -translate-x-1/2"
+                      />
+                    </span>
+                  ))}
+                {/* Unplayed part: dimmed, red playhead on its left edge (Studio Size) */}
+                <span ref={dim} className="absolute inset-y-0 right-0 border-l-[3px] border-[#ff1b1b] bg-black/60" style={{ left: "0%" }} />
+              </div>
+              {/* Hover / scrub preview: a larger frame and the time */}
+              {frames && hover && duration > 0 && (
+                <div
+                  aria-hidden="true"
+                  className="pointer-events-none absolute bottom-full mb-3 w-[clamp(132px,calc(176*var(--u)),220px)] -translate-x-1/2"
+                  style={{ left: hover.x }}
+                >
+                  <SpriteFrame frames={frames} index={hoverFrame} className="w-full rounded-media" />
+                  <span className="mt-2 block text-center text-ui tabular-nums">{short(hover.t)}</span>
+                </div>
+              )}
+            </div>
+
+            <button
+              type="button"
+              onClick={toggleSound}
+              aria-pressed={!muted}
+              aria-label={muted ? "Sound on" : "Sound off"}
+              title={media.showreel.hasAudio ? undefined : "This placeholder reel has no audio track"}
+              className={`${circle} relative`}
+            >
+              <span className={overlay} />
+              <svg viewBox="0 0 20 16" className="relative h-3.5 w-[18px]" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true">
+                <path d="M1 5.5h3.5L9 2v12l-4.5-3.5H1z" fill="currentColor" stroke="none" />
+                {muted ? <path d="M13 5.5l5 5M18 5.5l-5 5" strokeLinecap="round" /> : <path d="M12.5 5a4 4 0 0 1 0 6M15 2.5a7.5 7.5 0 0 1 0 11" strokeLinecap="round" />}
+              </svg>
+            </button>
+          </div>
+
+          <button
+            type="button"
+            onClick={onClose}
+            aria-label="Close showreel"
+            // Phones: top-right (Studio Size), clear of the centred controls; desktop: bottom-right.
+            className={`${circle} pointer-events-auto absolute right-gutter top-[max(20px,calc(var(--bar)/2_-_var(--circle)/2))] md:top-auto md:bottom-[max(20px,calc(var(--bar)/2_-_var(--circle)/2))]`}
+            onPointerEnter={() => setIdle(false)}
+          >
+            <span className={overlay} />
+            <svg
+              viewBox="0 0 14 14"
+              className="relative size-3.5 transition-transform duration-300 ease-ui group-hover/btn:rotate-90"
+              stroke="currentColor"
+              strokeWidth="1.5"
               aria-hidden="true"
-              className={`size-2 rounded-full ${buffering ? "bg-muted" : "bg-accent"} ${paused || buffering ? "" : "animate-[rec_1.2s_steps(2)_infinite]"}`}
-            />
-            <span className="tabular-nums tracking-[0.04em]" aria-label={`Time ${short(time)} of ${short(duration)}`}>
-              {timecode(time)}
-            </span>
-            {buffering && <span className="text-muted">Loading…</span>}
-          </div>
-          <div className="pointer-events-auto ml-auto flex items-center gap-[clamp(16px,calc(28*var(--u)),36px)]">
-            <TextControl onClick={toggle} data-autofocus="">
-              {paused ? "Play" : "Pause"}
-            </TextControl>
-            <TextControl onClick={toggleSound} aria-pressed={!muted} title={media.showreel.hasAudio ? undefined : "This placeholder reel has no audio track"}>
-              {muted ? "Sound off" : "Sound on"}
-            </TextControl>
-            <TextControl onClick={onClose}>Close</TextControl>
-          </div>
-        </div>
-
-        <div
-          role="slider"
-          tabIndex={0}
-          aria-label="Seek"
-          aria-valuemin={0}
-          aria-valuemax={Math.round(duration)}
-          aria-valuenow={Math.round(time)}
-          aria-valuetext={`${short(time)} of ${short(duration)}`}
-          onKeyDown={(e) => {
-            if (e.key === "ArrowRight") seekBy(5);
-            if (e.key === "ArrowLeft") seekBy(-5);
-            if (e.key === "Home") seekBy(-1e6);
-            if (e.key === "End") seekBy(1e6);
-          }}
-          onPointerDown={(e) => {
-            e.currentTarget.setPointerCapture(e.pointerId);
-            setScrubbing(true);
-            scrubTo(e.clientX, e.currentTarget);
-          }}
-          onPointerMove={(e) => {
-            if (scrubbing) scrubTo(e.clientX, e.currentTarget);
-          }}
-          onPointerUp={() => setScrubbing(false)}
-          className="group pointer-events-auto absolute h-4 cursor-pointer"
-          style={{ left: side, right: side, bottom: "max(10px, calc(var(--bar) / 2 - 8px))" }}
-        >
-          <span className="absolute inset-x-0 top-1/2 h-px -translate-y-1/2 bg-line-strong transition-[height] duration-200 group-hover:h-[3px]" />
-          <span
-            className="absolute left-0 top-1/2 h-px -translate-y-1/2 bg-accent transition-[height] duration-200 group-hover:h-[3px]"
-            style={{ width: `${progress}%` }}
-          />
+            >
+              <path d="M1 1l12 12M13 1L1 13" strokeLinecap="round" />
+            </svg>
+          </button>
         </div>
       </div>
     </div>
@@ -390,17 +568,4 @@ function geometry() {
   const ratio = media.showreel.width / media.showreel.height;
   const bandH = Math.min(vh, vw / ratio);
   return { vw, vh, bandH, bar: Math.max(0, (vh - bandH) / 2) };
-}
-
-/** Text control with the nav's underline (in from the left, out to the right). */
-function TextControl(props: ComponentProps<"button">) {
-  return (
-    <button type="button" {...props} className="group relative py-1 text-ui text-fg">
-      {props.children}
-      <span
-        aria-hidden="true"
-        className="absolute inset-x-0 -bottom-px h-px origin-right scale-x-0 bg-fg transition-transform duration-300 ease-ui group-hover:origin-left group-hover:scale-x-100 group-focus-visible:scale-x-100"
-      />
-    </button>
-  );
 }

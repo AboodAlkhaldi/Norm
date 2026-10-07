@@ -17,7 +17,7 @@ export function ProjectBlocks({ blocks }: { blocks: ProjectBlock[] }) {
           case "video":
             return (
               <figure key={i} className="px-gutter">
-                <MediaReveal className="w-full rounded-[4px] bg-surface" style={ratio(block.media)}>
+                <MediaReveal className="w-full rounded-media bg-surface" style={ratio(block.media)}>
                   <Media media={block.media} sizes="100vw" />
                 </MediaReveal>
                 {block.caption && <figcaption className="mt-4 text-body text-muted">{block.caption}</figcaption>}
@@ -30,7 +30,7 @@ export function ProjectBlocks({ blocks }: { blocks: ProjectBlock[] }) {
             return (
               <figure key={i} className="px-gutter">
                 <MediaReveal
-                  className="mx-auto rounded-[2px] bg-surface"
+                  className="mx-auto rounded-media bg-surface"
                   style={{ ...ratio(block.media), width: portrait ? `min(100%, calc(${w} * var(--u)))` : "100%" }}
                 >
                   <Media media={block.media} sizes={portrait ? "50vw" : "100vw"} />
@@ -43,7 +43,7 @@ export function ProjectBlocks({ blocks }: { blocks: ProjectBlock[] }) {
             return (
               <figure key={i} className="grid grid-cols-1 gap-gap px-gutter md:grid-cols-[calc(498*var(--u))_calc(442*var(--u))] md:items-end md:justify-between md:pl-[calc(126*var(--u))] md:pr-[calc(155*var(--u))]">
                 {block.media.map((m, j) => (
-                  <MediaReveal key={j} delay={j * 0.1} style={ratio(m)} className="w-full rounded-[2px] bg-surface">
+                  <MediaReveal key={j} delay={j * 0.1} style={ratio(m)} className="w-full rounded-media bg-surface">
                     <Media media={m} sizes="(min-width: 768px) 40vw, 100vw" />
                   </MediaReveal>
                 ))}

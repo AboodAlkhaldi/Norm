@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useRef, useState, type MouseEvent } from "react";
 import { gsap } from "@/lib/gsap";
 import { prefersReducedMotion } from "@/lib/useReducedMotion";
+import { pillBase } from "@/components/ui/Button";
 import { useFocusTrap } from "@/lib/useFocusTrap";
 import { Reveal, RiseIn } from "@/components/motion/Reveal";
 
@@ -108,13 +109,13 @@ function EmailPopover({ row, ok, copy, onClose }: { row: Row; ok: boolean; copy:
             type="button"
             data-autofocus=""
             onClick={onClose}
-            className="inline-flex h-[clamp(44px,calc(52*var(--u)),64px)] items-center rounded-full border border-bg bg-bg px-[clamp(20px,calc(26*var(--u)),34px)] text-ui transition-colors duration-300 ease-ui hover:bg-fg hover:text-bg"
+            className={`${pillBase} border-bg bg-bg hover:border-fg hover:bg-fg hover:text-bg`}
           >
             {copy.back}
           </button>
           <a
             href={mailto(row)}
-            className="inline-flex h-[clamp(44px,calc(52*var(--u)),64px)] items-center rounded-full border border-pill px-[clamp(20px,calc(26*var(--u)),34px)] text-ui transition-colors duration-300 ease-ui hover:border-fg"
+            className={`${pillBase} border-pill hover:border-fg`}
           >
             {copy.mailto}
           </a>

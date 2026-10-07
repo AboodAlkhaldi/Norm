@@ -47,7 +47,7 @@ export function Accordion({ items }: { items: { title: string; body: string }[] 
                 {item.title}
                 <span
                   aria-hidden="true"
-                  className="grid size-[clamp(40px,calc(53*var(--u)),64px)] shrink-0 place-items-center rounded-full border border-pill transition-colors duration-300 ease-ui group-hover:border-fg"
+                  className="grid size-circle shrink-0 place-items-center rounded-full border-2 border-pill transition-colors duration-300 ease-ui group-hover:border-fg"
                 >
                   <svg viewBox="0 0 12 12" className={`size-3 transition-transform duration-300 ease-ui ${isOpen ? "rotate-45" : ""}`}>
                     <path d="M6 0v12M0 6h12" stroke="currentColor" strokeWidth="1.2" />

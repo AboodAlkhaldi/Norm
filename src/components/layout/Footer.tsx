@@ -6,6 +6,9 @@ import { AppLink } from "@/components/ui/AppLink";
 import { VideoTile } from "@/components/media/VideoTile";
 import { Wordmark } from "@/components/brand/Wordmark";
 
+/** Social previews run 20% faster than recorded (owner). */
+const PREVIEW_SPEED = 1.2;
+
 /**
  * Footer (every page): social links with Studio Size-style hover video previews
  * (MOTION.md §13), the giant wordmark (§12) and the bottom bar.
@@ -35,11 +38,11 @@ export function Footer() {
               </a>
               <div
                 aria-hidden="true"
-                className={`pointer-events-none absolute top-full z-10 mt-3 hidden aspect-video w-[clamp(220px,calc(310*var(--u)),420px)] overflow-hidden rounded-[5px] transition-opacity duration-300 ease-in-out md:block ${align} ${
+                className={`pointer-events-none absolute top-full z-10 mt-3 hidden aspect-video w-[clamp(220px,calc(310*var(--u)),420px)] overflow-hidden rounded-media transition-opacity duration-300 ease-in-out md:block ${align} ${
                   hovered === i ? "opacity-100" : "opacity-0"
                 }`}
               >
-                <VideoTile media={s.preview} mode="manual" active={hovered === i} sizes="420px" className="size-full" />
+                <VideoTile media={s.preview} mode="manual" active={hovered === i} playbackRate={PREVIEW_SPEED} sizes="420px" className="size-full" />
               </div>
             </li>
           );

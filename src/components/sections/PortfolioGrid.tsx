@@ -97,7 +97,7 @@ export function PortfolioGrid({
                   type="button"
                   aria-pressed={on}
                   onClick={() => choose(f.id)}
-                  className={`inline-flex h-[clamp(40px,calc(53*var(--u)),64px)] items-center rounded-full border px-[clamp(18px,calc(26*var(--u)),34px)] text-ui transition-[background-color,color,border-color] duration-300 ease-ui ${
+                  className={`inline-flex h-btn items-center rounded-full border-2 px-btn-x text-ui transition-[background-color,color,border-color] duration-300 ease-ui ${
                     on ? "border-fg bg-fg text-bg" : "border-pill text-fg hover:border-fg"
                   }`}
                 >
@@ -120,7 +120,7 @@ export function PortfolioGrid({
         {projects.map((p) => (
           <li key={p.slug} data-flip-id={p.slug} data-flip-item="" className={matches(p) ? "" : "hidden"}>
             <Reveal>
-              <ProjectCard project={p} aspect="aspect-[434/326]" sizes="(min-width: 768px) 30vw, 100vw" />
+              <ProjectCard project={p} variant="grid" />
             </Reveal>
           </li>
         ))}

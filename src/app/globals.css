@@ -25,11 +25,21 @@
   --ease-ui: cubic-bezier(0.51, 0.01, 0.2, 1);
   --ease-page: cubic-bezier(0.44, 0, 0.28, 0.99);
 
-  /* Layout */
-  --gutter: max(16px, calc(43 * var(--u)));
-  --header-x: max(16px, calc(50 * var(--u)));
+  /* Layout — Studio Size grid at 1440: one 50px side margin for the header, text and
+     the start of every rail, so all of them line up. */
+  --gutter: max(16px, calc(50 * var(--u)));
+  --header-x: var(--gutter);
   --gap: max(12px, calc(26 * var(--u)));
-  --section: clamp(96px, calc(220 * var(--u)), 300px); /* vertical gap between Home sections */
+  --section: clamp(96px, calc(220 * var(--u)), 300px); /* vertical gap between sections (Studio Size) */
+  --title-gap: clamp(32px, calc(60 * var(--u)), 80px); /* section title row → rail / content */
+
+  /* Controls — one size for the whole site (Studio Size "View All" pill and arrow circles) */
+  --btn-h: clamp(46px, calc(54 * var(--u)), 66px); /* pill height, 54 at 1440 */
+  --btn-px: clamp(20px, calc(26 * var(--u)), 34px);
+  --circle: clamp(42px, calc(50 * var(--u)), 62px); /* round buttons, 50 at 1440 */
+
+  /* Media boxes (cards, rails, reel): Studio Size .05rem = 5px */
+  --r-media: 5px;
 
   /* Type scale (Manrope) — size at 1440 in comments */
   --fs-display: clamp(44px, calc(108 * var(--u)), 150px); /* 108 */
@@ -56,7 +66,7 @@
   --font-sans: var(--font-manrope), ui-sans-serif, system-ui, sans-serif;
 
   --text-display: var(--fs-display);
-  --text-display--line-height: 1.045;
+  --text-display--line-height: 0.9; /* Studio Size: 108 / 97 */
   --text-display--letter-spacing: -0.02em;
   --text-display--font-weight: 600;
   --text-list: var(--fs-list);
@@ -85,6 +95,12 @@
   --spacing-header: var(--header-x);
   --spacing-gap: var(--gap);
   --spacing-section: var(--section);
+  --spacing-title-gap: var(--title-gap);
+  --spacing-btn: var(--btn-h);
+  --spacing-btn-x: var(--btn-px);
+  --spacing-circle: var(--circle);
+
+  --radius-media: var(--r-media);
 
   --ease-ui: var(--ease-ui);
   --ease-page: var(--ease-page);
@@ -144,18 +160,13 @@ html.lenis body {
 }
 
 /* Text masks used by line/char reveals */
-.mask-line {
+.mask-line,
+.reveal-line-mask {
   display: block;
   overflow: clip;
-  padding-bottom: 0.08em;
-  margin-bottom: -0.08em;
-}
-
-/* Client logo drift (AI site behaviour) */
-@keyframes logos {
-  to {
-    transform: translateX(-50%);
-  }
+  /* room for descenders under tight display leading */
+  padding-bottom: 0.12em;
+  margin-bottom: -0.12em;
 }
 
 /*
@@ -212,13 +223,6 @@ html[data-intro="playing"] header a[aria-label="NORM — home"] {
 @keyframes intro-failsafe {
   to {
     visibility: hidden;
-  }
-}
-
-/* Showreel REC dot */
-@keyframes rec {
-  50% {
-    opacity: 0.2;
   }
 }
 

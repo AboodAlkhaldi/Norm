@@ -1,18 +1,20 @@
 "use client";
 
-import type { ReactNode } from "react";
-import type { MediaAsset } from "@/content/types";
+import type { CSSProperties, ReactNode } from "react";
+import type { MediaAsset, TileFormat } from "@/content/types";
 import { Carousel } from "@/components/carousel/Carousel";
 import { CarouselArrows } from "@/components/carousel/CarouselArrows";
 import { Media } from "@/components/media/Media";
 import { MediaReveal, Reveal } from "@/components/motion/Reveal";
+import { TILE_WIDTH, fluid, tileSizes, tileStyle } from "@/components/media/tiles";
 
-/** Default Figma tile widths at 1440 (Home strip); repeats for longer lists. */
-const WIDTHS = [432, 360, 554, 432];
+/** Default box sizes (Studio Size order); repeats for longer lists. */
+const FORMATS: TileFormat[] = ["portrait", "tall", "landscape", "portrait"];
 
 /**
- * Media strip with arrows underneath and up to two paragraphs aligned to the
- * 2nd and 3rd tile columns (Figma: Home "about" row, About hero, About perspectives).
+ * Media rail with arrows underneath and up to two paragraphs (Studio Size
+ * slider_with_text): the rail starts on the text margin, tiles share one height
+ * in three box sizes, and the paragraphs line up with the 2nd tile.
  */
 export function ImageStrip({
   items,
@@ -20,8 +22,7 @@ export function ImageStrip({
   action,
   label,
   className = "",
-  tileHeight = 540,
-  widths = WIDTHS,
+  formats = FORMATS,
   priority = 0,
 }: {
   items: (MediaAsset | ReactNode)[];
@@ -29,9 +30,8 @@ export function ImageStrip({
   action?: ReactNode;
   label: string;
   className?: string;
-  tileHeight?: number;
-  /** Tile widths at 1440 (About uses 384 / 712 / …). */
-  widths?: number[];
+  /** Box size per tile (repeats). */
+  formats?: TileFormat[];
   /** Load the first N tiles immediately (strip above the fold, e.g. About). */
   priority?: number;
 }) {
@@ -40,12 +40,16 @@ export function ImageStrip({
       <Carousel
         label={label}
         footer={
-          <div className="mt-[clamp(24px,calc(62*var(--u)),80px)] grid gap-y-6 px-gutter md:grid-cols-[calc(458*var(--u))_calc(464*var(--u))_1fr]">
-            <div className="flex gap-2">
+          <div
+            className="mt-title-gap grid gap-y-6 px-gutter md:grid-cols-[var(--col)_var(--col)_1fr]"
+            // Paragraph columns start where the 2nd and 3rd 4:5 tiles start (tile + rail gap).
+            style={{ "--col": `calc(${fluid(TILE_WIDTH.portrait)} + var(--gap))` } as CSSProperties}
+          >
+            <div className="flex gap-[5px]">
               <CarouselArrows labels={["Previous image", "Next image"]} />
             </div>
             {paragraphs?.map((p, i) => (
-              <Reveal key={i} delay={i * 0.1} className="md:pr-[calc(26*var(--u))]">
+              <Reveal key={i} delay={i * 0.1} className="md:pr-gap">
                 <p className="text-lead">{p}</p>
                 {i === 0 && action && <div className="mt-[clamp(24px,calc(34*var(--u)),44px)]">{action}</div>}
               </Reveal>
@@ -54,22 +58,16 @@ export function ImageStrip({
         }
       >
         {items.map((item, i) => {
-          const w = widths[i % widths.length];
+          const format = formats[i % formats.length];
           const isAsset = !!item && typeof item === "object" && "kind" in (item as object);
           return (
             <MediaReveal
               key={i}
               delay={i * 0.08}
-              className="shrink-0 rounded-[4px] bg-surface"
+              className="shrink-0 rounded-media bg-surface"
             >
-              <div
-                style={{
-                  width: `clamp(${Math.round(w * 0.62)}px, calc(${w} * var(--u)), ${Math.round(w * 1.34)}px)`,
-                  height: `clamp(${Math.round(tileHeight * 0.62)}px, calc(${tileHeight} * var(--u)), ${Math.round(tileHeight * 1.34)}px)`,
-                }}
-                className="relative"
-              >
-                {isAsset ? <Media media={item as MediaAsset} sizes="40vw" priority={i < priority} /> : (item as ReactNode)}
+              <div style={tileStyle(format)} className="relative">
+                {isAsset ? <Media media={item as MediaAsset} sizes={tileSizes(format)} priority={i < priority} /> : (item as ReactNode)}
               </div>
             </MediaReveal>
           );

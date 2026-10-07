@@ -48,7 +48,7 @@ export function RotatingWord({
   );
 
   return (
-    <span ref={ref} className="relative inline-grid overflow-clip pb-[0.08em] -mb-[0.08em] align-bottom">
+    <span ref={ref} className="relative inline-grid overflow-clip pb-[0.12em] -mb-[0.12em] align-bottom">
       <span className="sr-only">{words[0]}</span>
       {list.map((word, i) => (
         <span

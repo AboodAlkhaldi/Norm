@@ -58,12 +58,13 @@ GSAP equivalents: `power4.out` for character flips, `power1.inOut` for line/medi
 
 - AI site `.service-row`: list items `#434343`, active row → white, text slides right by `5.556vw` (80 px @1440), **0.3 s ease-in-out**; the matching media fades in (`opacity 0.3 s ease-in`) while others fade out.
 - Studio Size services: hover starts the row's video after a **600 ms** hover intent.
-- **Ours:** hover/focus sets the active row; colour + `translateX(4.17vw)` (60 px — Figma's indent) 0.4 s `--ease-ui`; media stack crossfades 0.5 s; the active row's video plays, others pause.
+- **Ours (Studio Size, owner's request):** nothing is selected until a row is hovered/focused, and leaving the list clears it again. Active row → white + `translateX` 80 px @1440, 0.3 s ease-in-out. Each row has its own 541 × 406 video beside the list, level with its row (≥ 58 px under the "Services" label, kept inside the list); it fades in 0.3 s ease-in and starts after a 600 ms hover. Touch: the row crossing 40 % of the screen is active; the picture above the list keeps the last row's poster.
 
 ## 8. Carousels — drag + arrows
 
 - Studio Size Featured Work: Splide, `autoWidth`, `perMove: 1`, gap 26 px, arrows disabled at the ends, slide speed ≈ 500 ms.
-- **Ours (`Carousel`):** track moved with GSAP `x`; pointer drag with momentum, snaps to card edges; arrows move one card, 0.8 s `--ease-page`; disabled at the ends; keyboard ←/→.
+- **Ours (`Carousel`):** track moved with GSAP `x`. Drag: the track eases after the pointer (frame-rate-independent lerp, 38 % of the remaining distance per 60 Hz frame) instead of jumping; on release it is thrown with the pointer's velocity over the last ~100 ms and settles on the nearest card (0.6–1.1 s `--ease-page`, longer for longer throws). Arrows move one card, 0.8 s; disabled at the ends; keyboard ←/→.
+- **Box sizes (owner: three sizes):** every rail tile has one height (534 @1440) and one of three widths — portrait 4:5 (427), tall 2:3 (356), landscape 4:3 (712) — from Studio Size's slider_with_text. Each project has a `format`; strips list theirs in content. Rails start on the 50 px text margin; strip paragraphs start where the 2nd and 3rd 4:5 tiles start.
 - **Drag affordance (owner's choice — no "Drag" word, no progress line):** the outline ‹ › cursor over the track (§16).
 
 ## 9. Portfolio filtering
@@ -93,20 +94,20 @@ GSAP equivalents: `power4.out` for character flips, `power1.inOut` for line/medi
 ## 13. Social hover previews
 
 - Studio Size footer: each social link holds a 16:9 video (`width 3.1rem` = 310 px @1440, radius 5 px) positioned above/below the label; on hover it fades in (`opacity 0.3 s ease-in-out`) and plays; leaving pauses and rewinds. The other links dim to `#434343` while one is hovered. First item aligns left, last aligns right.
-- **Ours:** same (310 px @1440, scales with vw), previews: Instagram + LinkedIn = NORM's page-scroll clips, YouTube = stock placeholder.
+- **Ours:** same (310 px @1440, scales with vw), previews play at **1.2×** (owner). Instagram + LinkedIn = NORM's page-scroll clips; YouTube = a pan down a screenshot of youtube.com/@Rakhaa.
 
 ## 14. Accordion (About → How we work)
 
 - Studio Size: first item open by default, one open at a time, `max-height` transition, `ScrollTrigger.refresh()` after 600 ms.
 - **Ours:** same behaviour, height animated with GSAP 0.6 s `--ease-page`, `+` rotates to `×` 0.3 s. First item open.
 
-## 15. Showreel — opening "Letterbox" + player "Viewfinder" (owner's choice)
+## 15. Showreel — opening "Letterbox" + Studio Size–style player (owner's choice)
 
 - References: Studio Size expands the preview into full screen from its own box; the AI site shows a centred "PLAY REEL" pill on hover and a small pause button for the background video.
 - **Hero:** AI-site pill on hover (always visible on touch) + background pause button (no blur).
 - **Opening (Letterbox):** the hero frame you were watching is captured; the box widens from the hero to full screen (0.95 s `--ease-page`), then black cinema bars slide in from top and bottom while the picture settles into the reel's 2.26:1 band (0.65 s, from 0.7 s); the captured frame dissolves into the playing reel (0.5 s); the viewfinder fades in (0.5 s, at 1.15 s).
-- **Player (Viewfinder):** corner brackets on the picture; in the top bar a blinking red REC dot (1.2 s, stepped; grey while loading) + frame timecode `HH:MM:SS:FF` (25 fps) + text controls Pause/Play · Sound · Close (nav underline); in the bottom bar a red 1 px timeline (3 px on hover) — drag to scrub, ←/→ ±5 s, Home/End. Click the picture to pause (outline cursor shows play/pause). Keys: Space, M, ←/→, Esc.
-- **Closing:** the same timeline backwards at 1.35× speed — bars retract, picture widens, then shrinks back into the hero box; the visitor lands at the exact scroll position they left. Re-opening during the close just plays forward again (no stuck state). The hero video pauses while the reel is open.
+- **Player (Studio Size controls, improved — replaced the Viewfinder):** a centred group in the bottom bar — play/pause circle (50 px, `#1d1d1d`, a `#434343` disc grows on hover), a timeline pill (320 × 50 @1440, radius 70) made of 9 frames from the reel, the unplayed part dimmed (black 60 %) with a 3 px red `#ff1b1b` playhead, and a sound circle; close circle bottom-right (top-right on phones), its × turns 90° on hover. Improvements over Studio Size: real reel frames in the bar (sprite `showreel-frames.jpg`, 60 frames), hovering the bar shows a larger frame + time above the pointer, progress drawn every frame from the video clock, scrubbing pauses and resumes, a spinner in the play button while buffering, and controls + cursor fade out after 2.6 s without movement while playing. Click the picture to pause. Keys: Space, M, ←/→ ±5 s, Home/End on the bar, Esc.
+- **Closing (new):** controls drop away (0.3 s), sound fades out (0.45 s), the current reel frame is held while the picture flies back into the hero box with the bars retracting at the same time (0.95 s `--ease-page`), then dissolves into the live hero preview (0.4 s); the visitor lands at the exact scroll position. Re-opening during the close returns straight to the player. The hero video pauses while the reel is open.
 
 ## 16. Cursor (Studio Size "mouse frame", owner's outline style)
 

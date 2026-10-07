@@ -36,6 +36,8 @@ type Props = {
   allowWithReducedMotion?: boolean;
   /** Only play while on screen (default). Off for full-screen players. */
   requireInView?: boolean;
+  /** Playback speed (e.g. 1.2 for the footer social previews). */
+  playbackRate?: number;
   /** Receives the <video> element (for custom controls). */
   videoRef?: (el: HTMLVideoElement | null) => void;
   onTimeUpdate?: (e: SyntheticEvent<HTMLVideoElement>) => void;
@@ -66,6 +68,7 @@ export function VideoTile({
   preload = "metadata",
   allowWithReducedMotion = false,
   requireInView = true,
+  playbackRate = 1,
   videoRef,
   onTimeUpdate,
   onLoadedMetadata,
@@ -149,6 +152,10 @@ export function VideoTile({
     (mode === "inview" || (mode === "hover" && (hovered || !canHover)) || (mode === "manual" && active));
 
   useEffect(() => {
+    if (video.current) video.current.playbackRate = playbackRate;
+  }, [playbackRate]);
+
+  useEffect(() => {
     const v = video.current;
     if (!v) return;
     if (shouldPlay) {
@@ -193,7 +200,11 @@ export function VideoTile({
           onWaiting={onWaiting}
           onEnded={onEnded}
           onTimeUpdate={onTimeUpdate}
-          onLoadedMetadata={onLoadedMetadata}
+          onLoadedMetadata={(e) => {
+            // Loading a source resets the rate to 1, so apply it once metadata is in.
+            e.currentTarget.playbackRate = playbackRate;
+            onLoadedMetadata?.(e);
+          }}
         />
       )}
       {/* Poster on top; fades out once the video is actually playing (no black flash). */}

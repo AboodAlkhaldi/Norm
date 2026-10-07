@@ -47,7 +47,7 @@ export function CtaBlock({ variant = "surface", media, ...p }: Props & { variant
     return (
       <section className={`px-gutter ${p.className ?? ""}`}>
         <AppLink href={p.button.href} className="group relative block" aria-label={`${label} — ${p.button.label}`}>
-          <MediaReveal className="aspect-[1354/761] w-full rounded-[4px]">
+          <MediaReveal className="aspect-[1340/754] w-full rounded-media">
             <div className="size-full transition-transform duration-1000 ease-page group-hover:scale-[1.02]">
               <Media media={media} sizes="100vw" />
             </div>
@@ -58,7 +58,7 @@ export function CtaBlock({ variant = "surface", media, ...p }: Props & { variant
               {lines(p.title)}
             </RevealLines>
             <Reveal className="mt-[clamp(20px,calc(28*var(--u)),40px)]">
-              <span className="inline-flex h-[clamp(44px,calc(52*var(--u)),64px)] items-center rounded-full border border-fg/40 px-[clamp(20px,calc(28*var(--u)),36px)] text-ui transition-colors duration-300 ease-ui group-hover:border-fg group-hover:bg-fg group-hover:text-bg">
+              <span className="inline-flex h-btn items-center rounded-full border-2 border-fg/40 px-btn-x text-ui transition-colors duration-300 ease-ui group-hover:border-fg group-hover:bg-fg group-hover:text-bg">
                 {p.button.label}
               </span>
             </Reveal>
@@ -70,7 +70,7 @@ export function CtaBlock({ variant = "surface", media, ...p }: Props & { variant
 
   return (
     <section className={`px-gutter ${p.className ?? ""}`}>
-      <div className="flex aspect-[1354/761] w-full flex-col items-center justify-center rounded-[2px] bg-surface px-gutter py-16 text-center max-md:aspect-auto max-md:py-24">
+      <div className="flex aspect-[1340/754] w-full flex-col items-center justify-center rounded-media bg-surface px-gutter py-16 text-center max-md:aspect-auto max-md:py-24">
         <RevealLines as="h2" className="text-list">
           {lines(p.title)}
         </RevealLines>

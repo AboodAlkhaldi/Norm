@@ -28,7 +28,7 @@ export const site = {
     { label: "Instagram", href: "https://www.instagram.com/norm.prod/", preview: media.socialInstagram },
     { label: "LinkedIn", href: "https://www.linkedin.com/company/norm-prod/", preview: media.socialLinkedin },
     // Link from the owner (2026-10-07); preview = brief of the channel.
-    { label: "YouTube", href: "https://www.youtube.com/channel/UC4jcwaqzp9PPDx77_y541dQ", preview: media.socialYoutube },
+    { label: "YouTube", href: "https://www.youtube.com/@Rakhaa", preview: media.socialYoutube },
   ] satisfies Social[],
 
   notFound: {

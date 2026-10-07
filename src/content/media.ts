@@ -59,6 +59,8 @@ export const media = {
     srcHigh: v("showreel"),
     poster: img("showreel"),
     hasAudio: false,
+    // 60 frames, one every 1.41 s, made with ffmpeg from showreel-720.mp4 (re-make when the reel changes).
+    frames: { src: img("showreel-frames"), count: 60, cols: 10, width: 192, height: 84 },
   } satisfies VideoAsset,
 
   heroReel: video("hero-reel", "NORM reel preview: a montage of motion, 3D and compositing work", WIDE, AI_SITE),
@@ -93,10 +95,10 @@ export const media = {
   // Social previews (footer)
   socialInstagram: video("social-instagram", "Scrolling preview of NORM's Instagram page", [800, 450], AI_SITE),
   socialLinkedin: video("social-linkedin", "Scrolling preview of NORM's LinkedIn page", [800, 450], AI_SITE),
-  // Brief of the real channel (header + details panel), made from two screenshots of
-  // youtube.com/channel/UC4jcwaqzp9PPDx77_y541dQ on 2026-10-07. Re-make it once the channel has videos.
+  // Brief of the linked channel: a slow pan down a full-page screenshot of
+  // youtube.com/@Rakhaa (header, videos, favourites) taken on 2026-10-07.
   socialYoutube: {
-    ...video("social-youtube", "Preview of NORM Production's YouTube channel", [800, 450], "NORM YouTube channel (screen capture)"),
+    ...video("social-youtube", "Preview of the YouTube channel: header and latest videos", [800, 450], "youtube.com/@Rakhaa (screen capture)"),
     placeholder: false,
   } satisfies VideoAsset,
 
@@ -121,7 +123,7 @@ export const media = {
 export const clientLogo = (n: number): ImageAsset => ({
   kind: "image",
   src: `${MEDIA_BASE}/logos/client-${String(n).padStart(2, "0")}.svg`,
-  width: 168,
+  width: 141,
   height: 36,
   alt: `Client ${String(n).padStart(2, "0")} (placeholder logo)`,
   placeholder: true,

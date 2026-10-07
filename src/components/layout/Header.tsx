@@ -88,14 +88,14 @@ export function Header() {
               </li>
             ))}
           </ul>
-          <ButtonLink href={site.navCta.href} size="sm" className="ml-[clamp(14px,calc(20*var(--u)),28px)]">
+          <ButtonLink href={site.navCta.href} className="ml-[clamp(14px,calc(20*var(--u)),28px)]">
             {site.navCta.label}
           </ButtonLink>
         </nav>
 
         <button
           type="button"
-          className="relative z-10 flex h-10 items-center rounded-full border border-pill px-5 text-ui md:hidden"
+          className="relative z-10 flex h-btn items-center rounded-full border-2 border-pill px-btn-x text-ui md:hidden"
           aria-expanded={open}
           aria-controls="mobile-menu"
           onClick={() => setOpen((o) => !o)}

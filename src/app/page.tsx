@@ -23,7 +23,7 @@ export default function HomePage() {
         projects={featuredProjects()}
         title={home.featured.title}
         viewAll={home.featured.viewAll}
-        className="mt-[clamp(80px,calc(100*var(--u)),140px)]"
+        className="mt-[clamp(72px,calc(100*var(--u)),136px)]"
       />
 
       <section className="mt-section px-gutter" aria-label="Manifesto">
@@ -44,6 +44,7 @@ export default function HomePage() {
         className="mt-section"
         label="Inside NORM"
         items={home.about.images}
+        formats={home.about.formats}
         paragraphs={home.about.paragraphs}
         action={<ButtonLink href={home.about.button.href}>{home.about.button.label}</ButtonLink>}
       />

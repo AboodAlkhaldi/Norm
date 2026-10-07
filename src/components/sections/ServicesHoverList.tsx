@@ -1,59 +1,145 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState, useSyncExternalStore } from "react";
 import type { Service } from "@/content/types";
 import { AppLink } from "@/components/ui/AppLink";
 import { Media } from "@/components/media/Media";
-import { MediaReveal, Reveal, RiseIn } from "@/components/motion/Reveal";
+import { Reveal, RiseIn } from "@/components/motion/Reveal";
+
+/** Studio Size waits this long on a hovered row before its video starts. */
+const PLAY_DELAY = 600;
 
 /**
- * Home services list (MOTION.md §7): hovering or focusing a service makes it the
- * active row (white + indented) and swaps the media beside the list.
+ * Home services list — Studio Size services_module (MOTION.md §7). Nothing is
+ * selected until a row is hovered / focused; that row turns white, slides 80px
+ * right and its video fades in beside the list (541 × 406 at 1440), starting after
+ * 600 ms. Leaving the list clears the selection again.
+ * Touch screens: the row crossing 40% of the screen height is the active one; the
+ * picture above the list keeps the last row's frame between rows.
  */
 export function ServicesHoverList({ services, eyebrow, className = "" }: { services: Service[]; eyebrow: string; className?: string }) {
-  const [active, setActive] = useState(0);
+  const [active, setActive] = useState<number | null>(null);
+  // Phones keep showing the last row's picture (poster) so the box is never empty.
+  const [last, setLast] = useState(0);
+  if (active !== null && active !== last) setLast(active);
+  const [playing, setPlaying] = useState<number | null>(null);
+  const [tops, setTops] = useState<number[]>([]);
+  const list = useRef<HTMLUListElement>(null);
+  const media = useRef<HTMLDivElement>(null);
+  const canHover = useCanHover();
+
+  // Start the active row's video after the hover delay (immediately on touch).
+  useEffect(() => {
+    if (active === null) return;
+    const t = window.setTimeout(() => setPlaying(active), canHover ? PLAY_DELAY : 0);
+    return () => window.clearTimeout(t);
+  }, [active, canHover]);
+  const live = active !== null && playing === active ? active : null;
+
+  // Desktop: each row's video sits level with its row, below the "Services" label
+  // (Studio Size keeps it ≥ 58px down) and inside the list's height.
+  useLayoutEffect(() => {
+    const ul = list.current;
+    const box = media.current;
+    if (!ul || !box) return;
+    const measure = () => {
+      if (!window.matchMedia("(min-width: 768px)").matches) return setTops([]);
+      const h = box.offsetHeight;
+      const min = Math.round((58 * window.innerWidth) / 1440);
+      const max = Math.max(min, ul.offsetHeight - h);
+      setTops(
+        Array.from(ul.children).map((li) => {
+          const el = li as HTMLElement;
+          return Math.round(Math.min(max, Math.max(min, el.offsetTop + el.offsetHeight / 2 - h / 2)));
+        }),
+      );
+    };
+    measure();
+    const ro = new ResizeObserver(measure);
+    ro.observe(ul);
+    return () => ro.disconnect();
+  }, []);
+
+  // Touch: activate the row under the 40% line while scrolling.
+  useEffect(() => {
+    if (canHover) return;
+    const ul = list.current;
+    if (!ul) return;
+    const io = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((e) => {
+          const i = Number((e.target as HTMLElement).dataset.index);
+          if (e.isIntersecting) setActive(i);
+          else setActive((a) => (a === i ? null : a));
+        });
+      },
+      { rootMargin: "-40% 0px -59% 0px" },
+    );
+    Array.from(ul.children).forEach((li) => io.observe(li));
+    return () => io.disconnect();
+  }, [canHover]);
 
   return (
-    <section className={`grid gap-y-10 px-gutter md:grid-cols-[calc(548*var(--u))_1fr] md:gap-x-[calc(144*var(--u))] ${className}`} aria-labelledby="home-services">
-      <div>
-        <Reveal>
-          <h2 id="home-services" className="text-body">
-            {eyebrow}
-          </h2>
-        </Reveal>
-        <MediaReveal className="mt-[clamp(24px,calc(99*var(--u)),130px)] aspect-[548/412] w-full rounded-[4px] bg-surface">
+    <section className={`relative px-gutter ${className}`} aria-labelledby="home-services">
+      <Reveal className="md:absolute md:left-gutter md:top-0">
+        <h2 id="home-services" className="text-body font-medium">
+          {eyebrow}
+        </h2>
+      </Reveal>
+
+      <div className="relative mt-6 md:mt-0">
+        {/* Videos (one per row, Studio Size); only the active one is visible. */}
+        <div
+          ref={media}
+          aria-hidden="true"
+          className="pointer-events-none relative mb-8 aspect-[541/406] w-full md:absolute md:left-0 md:top-0 md:mb-0 md:w-[calc(541*var(--u))]"
+        >
           {services.map((s, i) => (
             <div
               key={s.id}
-              className={`absolute inset-0 transition-opacity duration-500 ease-ui ${i === active ? "opacity-100" : "opacity-0"}`}
-              aria-hidden={i !== active}
+              className={`absolute inset-0 overflow-hidden rounded-media transition-opacity duration-300 ease-in ${i === (active ?? last) ? "opacity-100" : "opacity-0"} ${i === active ? "md:opacity-100" : "md:opacity-0"}`}
+              style={tops[i] ? { transform: `translateY(${tops[i]}px)` } : undefined}
             >
-              <Media media={s.media} mode="manual" active={i === active} sizes="(min-width: 768px) 40vw, 100vw" />
+              <Media media={s.media} mode="manual" active={i === live} sizes="(min-width: 768px) 38vw, 100vw" />
             </div>
           ))}
-        </MediaReveal>
-      </div>
+        </div>
 
-      <ul className="md:pt-[calc(4*var(--u))]">
-        {services.map((s, i) => (
-          <li key={s.id}>
-            <AppLink
-              href={`/services#${s.id}`}
-              className={`block text-list transition-colors duration-400 ease-ui ${i === active ? "text-fg" : "text-dim hover:text-fg"}`}
-              onPointerEnter={() => setActive(i)}
-              onFocus={() => setActive(i)}
-            >
-              <RiseIn delay={i * 0.06}>
-                <span
-                  className={`inline-block transition-transform duration-400 ease-ui ${i === active ? "translate-x-[calc(60*var(--u))]" : "translate-x-0"}`}
-                >
-                  {s.name}
-                </span>
-              </RiseIn>
-            </AppLink>
-          </li>
-        ))}
-      </ul>
+        <ul ref={list} className="md:pl-[calc(685*var(--u))]" onPointerLeave={() => setActive(null)}>
+          {services.map((s, i) => (
+            <li key={s.id} data-index={i}>
+              <AppLink
+                href={`/services#${s.id}`}
+                className={`block text-list leading-[0.925] transition-colors duration-300 ease-in-out ${i === active ? "text-fg" : "text-dim"}`}
+                onPointerEnter={() => canHover && setActive(i)}
+                onFocus={() => setActive(i)}
+                onBlur={() => setActive(null)}
+              >
+                <RiseIn delay={i * 0.06}>
+                  <span
+                    className={`inline-block transition-transform duration-300 ease-in-out ${i === active ? "translate-x-[calc(80*var(--u))]" : "translate-x-0"}`}
+                  >
+                    {s.name}
+                  </span>
+                </RiseIn>
+              </AppLink>
+            </li>
+          ))}
+        </ul>
+      </div>
     </section>
+  );
+}
+
+const HOVER = "(hover: hover)";
+function useCanHover() {
+  return useSyncExternalStore(
+    (cb) => {
+      const mq = window.matchMedia(HOVER);
+      mq.addEventListener("change", cb);
+      return () => mq.removeEventListener("change", cb);
+    },
+    () => window.matchMedia(HOVER).matches,
+    () => true,
   );
 }

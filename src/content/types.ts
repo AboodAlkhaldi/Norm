@@ -26,11 +26,19 @@ export type VideoAsset = {
   height: number;
   alt: string;
   hasAudio?: boolean;
+  /**
+   * Thumbnail sprite for player timelines: `count` evenly spaced frames, laid out
+   * in `cols` columns, each `width` × `height` px (frame i shows time (i / count) × duration).
+   */
+  frames?: { src: string; count: number; cols: number; width: number; height: number };
   placeholder?: boolean;
   source?: string;
 };
 
 export type MediaAsset = ImageAsset | VideoAsset;
+
+/** Rail box size (see components/media/tiles.ts): 4:5, 2:3 or 4:3 at one shared height. */
+export type TileFormat = "portrait" | "tall" | "landscape";
 
 export type Link = { label: string; href: string };
 
@@ -86,6 +94,8 @@ export type Project = {
   year?: string;
   summary?: string;
   cover: MediaAsset;
+  /** Box size of this project's card on rails (chosen to suit the cover's framing). */
+  format: TileFormat;
   blocks: ProjectBlock[];
   featured: boolean;
   placeholder: boolean;

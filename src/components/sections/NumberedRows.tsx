@@ -52,7 +52,7 @@ export function NumberedRows({
               )}
             </Reveal>
           </div>
-          <MediaReveal className="aspect-[630/394] w-full rounded-[4px] bg-surface">
+          <MediaReveal className="aspect-[630/394] w-full rounded-media bg-surface">
             {row.kinetic ? <KineticType lines={row.kinetic.lines} /> : <Media media={row.media} sizes="(min-width: 768px) 45vw, 100vw" />}
           </MediaReveal>
         </li>

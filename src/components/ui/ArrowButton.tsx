@@ -1,6 +1,6 @@
 import type { ComponentProps } from "react";
 
-/** Circular carousel arrow (Figma: 50px, #242424). */
+/** Circular carousel arrow (Studio Size: 50px circle, #1d1d1d). */
 export function ArrowButton({
   direction,
   className = "",
@@ -10,7 +10,7 @@ export function ArrowButton({
     <button
       type="button"
       aria-label={direction === "prev" ? "Previous" : "Next"}
-      className={`grid size-[clamp(40px,calc(50*var(--u)),64px)] place-items-center rounded-full bg-surface text-fg transition-[background-color,color,opacity] duration-300 ease-ui hover:bg-fg hover:text-bg disabled:pointer-events-none disabled:opacity-35 ${className}`}
+      className={`grid size-circle place-items-center rounded-full bg-pill text-fg transition-[background-color,color,opacity] duration-300 ease-ui hover:bg-fg hover:text-bg disabled:pointer-events-none disabled:opacity-35 ${className}`}
       {...rest}
     >
       <svg

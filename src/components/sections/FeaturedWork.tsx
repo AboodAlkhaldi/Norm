@@ -24,12 +24,12 @@ export function FeaturedWork({
       <Carousel
         label={title}
         header={
-          <div className="mb-[clamp(32px,calc(60*var(--u)),80px)] flex items-center justify-between gap-6 px-gutter">
+          <div className="mb-title-gap flex items-center justify-between gap-6 px-gutter">
             <RevealLines as="h2" className="text-title">
               <span id="featured-title">{title}</span>
             </RevealLines>
-            <Reveal className="flex items-center gap-2">
-              <ButtonLink href={viewAll.href} className="mr-0.5">
+            <Reveal className="flex items-center gap-[5px]">
+              <ButtonLink href={viewAll.href}>
                 {viewAll.label}
               </ButtonLink>
               <CarouselArrows labels={["Previous projects", "Next projects"]} />
@@ -38,7 +38,7 @@ export function FeaturedWork({
         }
       >
         {projects.map((p) => (
-          <ProjectCard key={p.slug} project={p} className="w-[clamp(260px,calc(432*var(--u)),580px)] shrink-0" />
+          <ProjectCard key={p.slug} project={p} />
         ))}
       </Carousel>
     </section>

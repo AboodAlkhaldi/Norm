@@ -1,9 +1,11 @@
 import { media } from "./media";
+import type { TileFormat } from "./types";
 
 /** About page. Copy from the AI-generated NORM site unless noted. */
 export const aboutPage = {
   title: ["Independent minds.", "Shared direction."],
   strip: [media.btsInterview, media.studioCamera, media.cameraSilhouette],
+  stripFormats: ["portrait", "landscape", "tall"] as TileFormat[],
   paragraphs: [
     "Founded in July 2023, NORM is a creative production company working across film, animation, visual effects and brand content.",
     "Our creative network spans four continents. We bring the people and disciplines a project needs together around a clear story and a shared standard of craft.",
@@ -12,6 +14,8 @@ export const aboutPage = {
     title: ["Different perspectives.", "Shared purpose."],
     /** Middle tile renders the kinetic type from Figma. */
     media: [media.character, media.calligraphy],
+    /** Tile sizes: photo, kinetic type, photo. */
+    formats: ["portrait", "landscape", "tall"] as TileFormat[],
     kinetic: ["ME", "OV"] as [string, string],
     paragraphs: [
       "A finished frame rarely shows the decisions behind it. Ideas become treatments and storyboards; images are built, photographed, animated, edited and refined.",
@@ -19,9 +23,10 @@ export const aboutPage = {
     ],
   },
   team: {
+    /** Screen-reader heading; the Studio Size layout shows only the two figures. */
     title: "The people behind NORM",
-    // From Figma (the AI site has no intro line here).
-    intro: "A distributed creative network bringing different perspectives to a shared brief.",
+    /** "Founded in July 2023" (AI site, paragraph above). */
+    founded: "2023",
   },
   howWeWork: {
     title: "How we work",

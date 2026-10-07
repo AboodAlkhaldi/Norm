@@ -68,7 +68,7 @@ export function Carousel({
   }, [metrics]);
 
   const goTo = useCallback(
-    (i: number) => {
+    (i: number, duration = 0.8) => {
       const m = metrics();
       if (!m) return;
       const { stops } = m;
@@ -76,7 +76,7 @@ export function Carousel({
       x.current = -stops[index.current];
       gsap.to(track.current, {
         x: x.current,
-        duration: prefersReducedMotion() ? 0 : 0.8,
+        duration: prefersReducedMotion() ? 0 : duration,
         ease: "page",
         overwrite: true,
         onComplete: update,
@@ -100,26 +100,42 @@ export function Carousel({
     [metrics],
   );
 
-  // Drag
+  // Drag (MOTION.md §8). The track eases after the pointer instead of jumping to it
+  // (a short frame-rate independent lerp), and on release it is thrown with the
+  // pointer's recent velocity, then settles on the nearest card.
   useEffect(() => {
     const v = viewport.current!;
+    const t = track.current!;
     let startX = 0;
     let startPos = 0;
-    let lastX = 0;
-    let lastT = 0;
-    let velocity = 0;
+    let target = 0; // where the pointer wants the track
+    let shown = 0; // where the track is drawn
+    let samples: { t: number; x: number }[] = [];
     let dragging = false;
     let moved = false;
+    let raf = 0;
+    let last = 0;
+
+    const FOLLOW = 0.38; // share of the remaining distance covered per 60 Hz frame
+
+    const loop = (now: number) => {
+      const dt = Math.min(64, now - (last || now));
+      last = now;
+      const k = 1 - Math.pow(1 - FOLLOW, dt / (1000 / 60));
+      shown += (target - shown) * k;
+      gsap.set(t, { x: shown });
+      raf = dragging || Math.abs(target - shown) > 0.3 ? requestAnimationFrame(loop) : 0;
+    };
 
     const down = (e: PointerEvent) => {
       if (e.button !== 0) return;
       dragging = true;
       moved = false;
-      startX = lastX = e.clientX;
-      lastT = performance.now();
-      startPos = x.current;
-      velocity = 0;
-      gsap.killTweensOf(track.current);
+      startX = e.clientX;
+      gsap.killTweensOf(t);
+      // Start from where the track is drawn right now (it may be mid-tween).
+      startPos = shown = target = Number(gsap.getProperty(t, "x")) || 0;
+      samples = [{ t: performance.now(), x: target }];
     };
     const move = (e: PointerEvent) => {
       if (!dragging) return;
@@ -128,28 +144,39 @@ export function Carousel({
         moved = true;
         v.setPointerCapture(e.pointerId);
         v.dataset.dragging = "true";
+        last = 0;
+        if (!raf) raf = requestAnimationFrame(loop);
       }
       if (!moved) return;
-      const now = performance.now();
-      velocity = (e.clientX - lastX) / Math.max(1, now - lastT);
-      lastX = e.clientX;
-      lastT = now;
       const m = metrics();
       if (!m) return;
       const { max } = m;
       let next = startPos + dx;
       if (next > 0) next *= 0.35; // resistance past the ends
       if (next < -max) next = -max + (next + max) * 0.35;
-      x.current = next;
-      gsap.set(track.current, { x: next });
+      target = x.current = next;
+      const now = performance.now();
+      samples.push({ t: now, x: next });
+      while (samples.length > 2 && now - samples[0].t > 100) samples.shift();
     };
     const up = (e: PointerEvent) => {
       if (!dragging) return;
       dragging = false;
       if (v.hasPointerCapture(e.pointerId)) v.releasePointerCapture(e.pointerId);
       if (!moved) return;
-      const projected = x.current + velocity * 260;
-      goTo(nearest(projected));
+      cancelAnimationFrame(raf);
+      raf = 0;
+      // Velocity over the last ~100 ms (px/ms); a pause before release means no throw.
+      const now = performance.now();
+      const first = samples[0];
+      const recent = now - samples[samples.length - 1].t < 60;
+      const vel = recent && first ? (target - first.x) / Math.max(16, now - first.t) : 0;
+      gsap.set(t, { x: shown });
+      const projected = target + vel * 320;
+      const i = nearest(projected);
+      const m = metrics();
+      const dist = m ? Math.abs(-m.stops[i] - shown) : 0;
+      goTo(i, Math.min(1.1, 0.6 + dist / 2400));
       window.setTimeout(() => delete v.dataset.dragging, 0);
     };
     // Swallow the click that ends a drag so cards don't open.
@@ -167,6 +194,7 @@ export function Carousel({
     window.addEventListener("pointercancel", up);
     v.addEventListener("click", click, true);
     return () => {
+      cancelAnimationFrame(raf);
       v.removeEventListener("pointerdown", down);
       window.removeEventListener("pointermove", move);
       window.removeEventListener("pointerup", up);
