@@ -13,8 +13,9 @@ import { afterIntro } from "@/lib/intro";
  */
 export function RotatingWord({
   words,
-  // Seconds a word stays before flipping (owner: faster than Studio Size's ~5.4 s cycle).
-  hold = 3.5,
+  // Seconds a word stays before flipping. Owner: "a second or something" — with the
+  // quicker flip below a new word arrives about every 1.5 s.
+  hold = 0.6,
   startDelay = 1.6,
 }: {
   words: readonly string[];
@@ -36,11 +37,11 @@ export function RotatingWord({
       const tl = gsap.timeline({ repeat: -1, delay: startDelay, paused: true });
       groups.forEach((chars, i) => {
         const next = groups[(i + 1) % groups.length];
-        tl.to(chars, { yPercent: -150, duration: 0.75, ease: "power4.out", stagger: 0.04 }, `+=${hold}`).fromTo(
+        tl.to(chars, { yPercent: -150, duration: 0.6, ease: "power4.out", stagger: 0.03 }, `+=${hold}`).fromTo(
           next,
           { yPercent: 150 },
-          { yPercent: 0, duration: 0.75, ease: "power4.out", stagger: 0.04, immediateRender: false },
-          "<0.12",
+          { yPercent: 0, duration: 0.6, ease: "power4.out", stagger: 0.03, immediateRender: false },
+          "<0.08",
         );
       });
       return afterIntro(() => tl.play());

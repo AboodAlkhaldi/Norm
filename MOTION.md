@@ -29,7 +29,7 @@ GSAP equivalents: `power4.out` for character flips, `power1.inOut` for line/medi
 - Owner decision: behaviour from the AI site, technique from Studio Size.
 - AI site: the word "creation" is split into letters. Every **7 s** cycle the current letters slide **up out** (`translateY(0 → -150%)`) while the next copy slides **up in** (`150% → 0`) between 78 % and 94 % of the cycle, letters staggered **32 ms**, easing `--ease-page`, inside an `overflow: hidden` mask. First load: letters rise from `130%` over **0.9 s**.
 - Studio Size: same idea with a GSAP timeline per word — chars `y: 150% → 0` in / `0 → -150%` out, **0.75 s**, `power4.out`, stagger **0.05 s**, `repeat: -1`. Starts after the heading's line reveal completes (+300 ms).
-- **Ours:** GSAP timeline, words from `home.ts` (`["creation"]` today — add words to rotate through them). Hold ≈ 3.5 s (owner: faster; a word changes every ≈ 4.5 s), flip 0.75 s `power4.out`, char stagger 0.04 s, mask overflow hidden. Screen readers get the static word.
+- **Ours:** GSAP timeline, words from `home.ts` (`["creation"]` today — add words to rotate through them). Hold 0.6 s, flip 0.6 s `power4.out`, char stagger 0.03 s — a new word about every 1.5 s (owner), mask overflow hidden. Screen readers get the static word.
 
 ## 3. Line / text reveals on scroll
 

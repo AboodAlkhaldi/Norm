@@ -64,6 +64,7 @@
   --color-accent: var(--c-accent);
 
   --font-sans: var(--font-clash), ui-sans-serif, system-ui, sans-serif;
+  --font-header: var(--font-inter-tight), "Helvetica Neue", Helvetica, Arial, sans-serif;
 
   --text-display: var(--fs-display);
   --text-display--line-height: 0.9; /* Studio Size: 108 / 97 */
