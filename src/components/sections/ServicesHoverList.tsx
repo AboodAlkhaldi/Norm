@@ -4,7 +4,6 @@ import { useEffect, useLayoutEffect, useRef, useState, useSyncExternalStore } fr
 import type { Service } from "@/content/types";
 import { AppLink } from "@/components/ui/AppLink";
 import { Media } from "@/components/media/Media";
-import { Reveal, RiseIn } from "@/components/motion/Reveal";
 
 /** Studio Size waits this long on a hovered row before its video starts. */
 const PLAY_DELAY = 600;
@@ -81,11 +80,10 @@ export function ServicesHoverList({ services, eyebrow, className = "" }: { servi
 
   return (
     <section className={`relative px-gutter ${className}`} aria-labelledby="home-services">
-      <Reveal className="md:absolute md:left-gutter md:top-0">
-        <h2 id="home-services" className="text-body font-medium">
-          {eyebrow}
-        </h2>
-      </Reveal>
+      {/* No entrance animation: the label and the list are simply there (Studio Size, owner). */}
+      <h2 id="home-services" className="text-body font-medium md:absolute md:left-gutter md:top-0">
+        {eyebrow}
+      </h2>
 
       <div className="relative mt-6 md:mt-0">
         {/* Videos (one per row, Studio Size); only the active one is visible. */}
@@ -115,13 +113,11 @@ export function ServicesHoverList({ services, eyebrow, className = "" }: { servi
                 onFocus={() => setActive(i)}
                 onBlur={() => setActive(null)}
               >
-                <RiseIn delay={i * 0.06}>
-                  <span
-                    className={`inline-block transition-transform duration-300 ease-in-out ${i === active ? "translate-x-[calc(80*var(--u))]" : "translate-x-0"}`}
-                  >
-                    {s.name}
-                  </span>
-                </RiseIn>
+                <span
+                  className={`inline-block transition-transform duration-300 ease-in-out ${i === active ? "translate-x-[calc(80*var(--u))]" : "translate-x-0"}`}
+                >
+                  {s.name}
+                </span>
               </AppLink>
             </li>
           ))}

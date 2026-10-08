@@ -46,7 +46,7 @@ src/
   app/                 routes (one folder per page) + layout, template (page transition), robots, 404
   content/             ALL copy and media references — edit content here
   components/
-    brand/             Logo + footer Wordmark (traced placeholder geometry)
+    brand/             Logo + footer Wordmark (official wordmark, traced to vector)
     layout/            Header, Footer
     media/             VideoTile (every video uses it), Media (image or video)
     motion/            SmoothScroll (Lenis), Reveal*, RotatingWord, PageTransition, CursorLabel
@@ -113,7 +113,9 @@ ffmpeg -i showreel-720.mp4 -vf "fps=60/DURATION_IN_SECONDS,scale=192:-2:flags=la
 
 **Rail box sizes**: each project has `format: "portrait" | "tall" | "landscape"` (4:5, 2:3, 4:3 at one height — `src/components/media/tiles.ts`); image strips take `formats` from their content file.
 
-**Logo**: the nav logo and footer wordmark share one traced placeholder in `src/components/brand/logo-geometry.ts`. Replace the path data there (or swap `Logo.tsx` / `Wordmark.tsx` to use the official SVG).
+**Logo**: the nav logo, footer wordmark and intro share the official wordmark, traced to a vector path in `src/components/brand/logo-geometry.ts` (from "Logos & Landmark NORM.zip"). If an official SVG arrives, paste its path there. The tab icon (`src/app/icon.svg`) is the official camera mark.
+
+**Font**: Clash Display 200–700 in `src/app/fonts/` (owner's files), loaded with `next/font/local` in `src/app/layout.tsx`.
 
 ## Placeholders
 

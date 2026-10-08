@@ -232,3 +232,13 @@ These override the sections above where they differ.
 - **Font: Clash Display** (Indian Type Foundry, via Fontshare) to match the AI site, replacing Manrope everywhere. Self-hosted from the AI site's own files (`src/app/fonts/ClashDisplay-300…600.woff2`) with `next/font/local`; client logos and the share image redrawn in it. Comparison showed Figma's PNGs are not Clash (closest match there was Manrope); the owner chose the AI site. **To check before launch:** the Fontshare licence terms (the font files point to fontshare.com/terms).
 - **Reel player:** the outline play/pause cursor and the native cursor now hide together with the controls, and come back with them on any movement.
 - **Social previews:** Instagram, LinkedIn and YouTube now scroll at the same steady speed (measured 192 / 156 / eased → 170 px/s each); the YouTube one is only the @Rakhaa channel (old files removed and renamed so caches can't mix them).
+
+### Decisions — Studio Size match, official logo + font (2026-10-08)
+
+- **Font files:** the owner's Clash Display set (Extralight–Bold, 200–700), converted to woff2 in `src/app/fonts/` (replaces the copies taken from the AI site).
+- **Logo:** official artwork ("Logos & Landmark NORM.zip") traced to vector (matches the PNG 99.6 %) for the nav logo, footer wordmark and intro. **Tab icon:** the official camera mark (white shape + red dot) on a black rounded square.
+- **Header = Studio Size:** logo 24 px tall at 50 px; links 14 px medium, −1 % tracking, 20 px apart, 2 px underline; "Get in touch" pill 40 px tall / 20 px padding. Other buttons stay 54 px; all buttons now use medium-weight text like Studio Size.
+- **Featured Work = Studio Size:** every card 427 × 534 (4:5), 26 px apart; title 40 px medium; card name 24 px medium 30 px under the card; subtitle 18 px #767676. The three box sizes stay on the image strips only.
+- **Corners:** 8 px on reel/card/video boxes (owner: a bit rounder than Studio Size's 5 px).
+- **Services list (Home):** no entrance animation — the list is simply there.
+- **Hero word:** changes every ~4.5 s (was ~6.3 s; Studio Size ~5.4 s).

@@ -5,12 +5,14 @@ import { useEffect, useState } from "react";
 import { site } from "@/content/site";
 import { Logo } from "@/components/brand/Logo";
 import { AppLink } from "@/components/ui/AppLink";
-import { ButtonLink } from "@/components/ui/Button";
+import { ButtonLink, pillNav } from "@/components/ui/Button";
 import { lockScroll } from "@/lib/lenis";
 
 /**
  * Header (MOTION.md §11): hides on scroll down, returns on scroll up,
- * dark background after 150px. Active page has a 1px underline (Figma).
+ * dark background after 150px. Layout = Studio Size at 1440: 21px from the top,
+ * logo 24px tall at the 50px margin, links 14px medium 20px apart (2px underline
+ * on hover / active page), "Get in touch" 40px pill 20px after the links.
  */
 export function Header() {
   const pathname = usePathname();
@@ -62,25 +64,25 @@ export function Header() {
         hidden && !open ? "-translate-y-full" : ""
       } ${solid || open ? "bg-black/[0.88]" : "bg-transparent"}`}
     >
-      <div className="relative z-10 flex h-[clamp(64px,calc(96*var(--u)),120px)] items-center justify-between px-header">
+      <div className="relative z-10 flex items-center justify-between px-header pb-[clamp(14px,calc(34*var(--u)),44px)] pt-[clamp(12px,calc(21*var(--u)),28px)]">
         <AppLink href="/" className="block" aria-label="NORM — home">
-          <Logo className="h-auto w-[clamp(84px,calc(114*var(--u)),150px)] text-fg" />
+          <Logo className="h-[clamp(20px,calc(24*var(--u)),32px)] w-auto text-fg" />
         </AppLink>
 
         <nav aria-label="Main" className="hidden items-center md:flex">
-          <ul className="flex items-center gap-[clamp(14px,calc(20*var(--u)),28px)]">
+          <ul className="flex items-center gap-[clamp(14px,calc(20*var(--u)),26px)]">
             {site.nav.map((item) => (
               <li key={item.href}>
                 <AppLink
                   href={item.href}
                   aria-current={isActive(item.href) ? "page" : undefined}
-                  className="group relative py-1 text-ui"
+                  className="group relative py-1 text-ui font-medium tracking-[-0.01em]"
                 >
                   {item.label}
                   <span
                     aria-hidden="true"
                     // AI site: grows in from the left on hover, leaves to the right.
-                    className={`absolute inset-x-0 -bottom-px h-px bg-fg transition-transform duration-300 ease-ui ${
+                    className={`absolute inset-x-0 -bottom-0.5 h-[2px] bg-fg transition-transform duration-300 ease-ui ${
                       isActive(item.href) ? "origin-left scale-x-100" : "origin-right scale-x-0 group-hover:origin-left group-hover:scale-x-100"
                     }`}
                   />
@@ -88,14 +90,14 @@ export function Header() {
               </li>
             ))}
           </ul>
-          <ButtonLink href={site.navCta.href} className="ml-[clamp(14px,calc(20*var(--u)),28px)]">
+          <ButtonLink href={site.navCta.href} size="nav" className="ml-[clamp(14px,calc(20*var(--u)),26px)]">
             {site.navCta.label}
           </ButtonLink>
         </nav>
 
         <button
           type="button"
-          className="relative z-10 flex h-btn items-center rounded-full border-2 border-pill px-btn-x text-ui md:hidden"
+          className={`${pillNav} relative z-10 border-pill md:hidden`}
           aria-expanded={open}
           aria-controls="mobile-menu"
           onClick={() => setOpen((o) => !o)}

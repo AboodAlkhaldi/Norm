@@ -16,15 +16,17 @@ import { IntroOverlay } from "@/components/brand/IntroOverlay";
 import { INTRO_BOOT_SCRIPT } from "@/lib/intro-boot";
 
 /**
- * Clash Display (Indian Type Foundry, via Fontshare) — the AI site's typeface (owner's
- * choice). Files are the AI site's own /fonts/ClashDisplay-*.woff2.
+ * Clash Display (Indian Type Foundry) — the site typeface, from the owner's font files
+ * (ClashDisplay-Extralight…Bold.otf converted to woff2).
  */
 const clash = localFont({
   src: [
+    { path: "./fonts/ClashDisplay-200.woff2", weight: "200", style: "normal" },
     { path: "./fonts/ClashDisplay-300.woff2", weight: "300", style: "normal" },
     { path: "./fonts/ClashDisplay-400.woff2", weight: "400", style: "normal" },
     { path: "./fonts/ClashDisplay-500.woff2", weight: "500", style: "normal" },
     { path: "./fonts/ClashDisplay-600.woff2", weight: "600", style: "normal" },
+    { path: "./fonts/ClashDisplay-700.woff2", weight: "700", style: "normal" },
   ],
   variable: "--font-clash",
   display: "swap",

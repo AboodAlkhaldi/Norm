@@ -94,8 +94,6 @@ export type Project = {
   year?: string;
   summary?: string;
   cover: MediaAsset;
-  /** Box size of this project's card on rails (chosen to suit the cover's framing). */
-  format: TileFormat;
   blocks: ProjectBlock[];
   featured: boolean;
   placeholder: boolean;

@@ -18,7 +18,6 @@ export const projects: Project[] = [
     summary:
       "A selection of motion, animation, visual effects and finishing from the NORM company reel. Different techniques come together around the same purpose: making the story clear and memorable.",
     cover: media.nightLoop,
-    format: "landscape",
     blocks: [
       { type: "video", media: media.heroReel },
       { type: "imagePair", media: [media.calligraphy, media.character] },
@@ -38,7 +37,6 @@ export const projects: Project[] = [
     summary:
       "Words, illustration and objects become a moving visual language. This excerpt from the NORM reel combines Arabic typography with dimensional animation.",
     cover: media.kineticBooks,
-    format: "tall",
     blocks: [
       { type: "video", media: media.kineticBooks },
       { type: "imagePair", media: [media.graphicStorytelling, media.character] },
@@ -57,7 +55,6 @@ export const projects: Project[] = [
     summary:
       "A reference for premium product storytelling: tactile material, controlled light and a clear colour system. This campaign was created by BUCK for Oura and is shown here as a visual reference.",
     cover: media.redHand,
-    format: "portrait",
     blocks: [
       { type: "video", media: media.redHand },
       { type: "video", media: media.smoke },
@@ -76,7 +73,6 @@ export const projects: Project[] = [
     summary:
       "An authored digital world built through modelling, texturing, lighting and animation. A reference for atmosphere and visual worldbuilding, created by Builders Club.",
     cover: media.smoke,
-    format: "landscape",
     blocks: [
       { type: "video", media: media.smoke },
       { type: "video", media: media.cameraSilhouette },
@@ -95,7 +91,6 @@ export const projects: Project[] = [
     summary:
       "Terrain, architecture and camera movement turn information into a sense of place. Selected frames and sequences from the NORM company reel.",
     cover: media.architecturalMotion,
-    format: "landscape",
     blocks: [
       { type: "video", media: media.architecturalMotion },
       { type: "video", media: media.terrainMotion },
@@ -115,7 +110,6 @@ export const projects: Project[] = [
     summary:
       "From isolating a subject to integrating the final image, then shaping contrast and colour. These reel excerpts show the process as well as the finished frame.",
     cover: media.colourProcess,
-    format: "landscape",
     blocks: [
       { type: "video", media: media.colourProcess },
       { type: "imagePair", media: [media.processMatte, media.processComposite] },
@@ -136,7 +130,6 @@ export const projects: Project[] = [
     summary:
       "A reference for the relationship between composition, material and movement. Reflective surfaces and a restrained colour palette make simple geometry feel tactile. Created by Ordinary Folk.",
     cover: media.cameraSilhouette,
-    format: "portrait",
     blocks: [
       { type: "video", media: media.cameraSilhouette },
       { type: "video", media: media.violinist },
@@ -154,7 +147,6 @@ export const projects: Project[] = [
     project: "Reference study",
     services: "Photography & art direction",
     cover: media.postureWhiteRose,
-    format: "tall",
     blocks: [
       { type: "image", media: media.postureWhiteRose, size: "medium" },
       { type: "statement", text: "Shape. Balance. Light." },

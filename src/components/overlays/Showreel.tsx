@@ -197,7 +197,7 @@ function ShowreelOverlay({ isOpen, onClose, origin }: { isOpen: boolean; onClose
       if (onScreen && r) {
         t.fromTo(
           box.current,
-          { left: r.left, top: r.top, width: r.width, height: r.height, borderRadius: 5, opacity: 1 },
+          { left: r.left, top: r.top, width: r.width, height: r.height, borderRadius: 8, opacity: 1 },
           { left: 0, top: 0, width: g.vw, height: g.vh, borderRadius: 0, duration: 0.95, ease: "page" },
         )
           .fromTo([barTop.current, barBottom.current], { height: 0 }, { height: g.bar, duration: 0.65, ease: "page" }, 0.7)
@@ -258,7 +258,7 @@ function ShowreelOverlay({ isOpen, onClose, origin }: { isOpen: boolean; onClose
     if (v) t.to(v, { volume: 0, duration: instant ? 0 : 0.45, ease: "none", onComplete: () => v.pause() }, 0);
     if (onScreen && r) {
       t.to([barTop.current, barBottom.current], { height: 0, duration: 0.75, ease: "page" }, 0.12)
-        .to(box.current, { left: r.left, top: r.top, width: r.width, height: r.height, borderRadius: 5, duration: 0.95, ease: "page" }, 0.12)
+        .to(box.current, { left: r.left, top: r.top, width: r.width, height: r.height, borderRadius: 8, duration: 0.95, ease: "page" }, 0.12)
         .to(box.current, { opacity: 0, duration: 0.4, ease: "ui" }, 0.8);
     } else {
       t.to(el, { opacity: 0, duration: instant ? 0 : 0.5, ease: "page" }, 0.1);

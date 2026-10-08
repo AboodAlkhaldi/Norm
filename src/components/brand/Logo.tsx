@@ -1,8 +1,8 @@
 import { WORDMARK_DOT, WORDMARK_PATH, WORDMARK_VIEWBOX } from "./logo-geometry";
 
 /**
- * NORM logo (placeholder traced from Figma). The nav logo and the giant footer
- * wordmark share this geometry — swap logo-geometry.ts for the real SVG later.
+ * NORM logo — the official wordmark (logo-geometry.ts). The nav logo and the giant
+ * footer wordmark share this geometry.
  */
 export function Logo({ className, title = "NORM" }: { className?: string; title?: string }) {
   const { width, height } = WORDMARK_VIEWBOX;

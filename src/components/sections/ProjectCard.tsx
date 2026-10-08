@@ -5,8 +5,9 @@ import { tileSizes, tileStyle } from "@/components/media/tiles";
 
 /**
  * Project tile: hover-playing media + title + category.
- * - `variant="rail"`: box size from the project's `format` (three sizes, components/media/tiles.ts)
+ * - `variant="rail"` (Featured Work): every card 427 × 534 (4:5) at 1440 — Studio Size
  * - `variant="grid"`: fills its grid column at 4:3 (Studio Size portfolio, 427 × 320)
+ * Text (Studio Size): name 24px medium, 30px under the media; line below 18px grey #767676.
  */
 export function ProjectCard({
   project,
@@ -25,15 +26,15 @@ export function ProjectCard({
       href={`/work/${project.slug}`}
       data-hover-root=""
       className={`group block ${rail ? "shrink-0" : ""} ${className}`}
-      style={rail ? { width: tileStyle(project.format).width } : undefined}
+      style={rail ? { width: tileStyle("portrait").width } : undefined}
       draggable={false}
     >
       <div
         className={`relative overflow-hidden rounded-media bg-surface ${rail ? "" : "aspect-[4/3]"}`}
-        style={rail ? { height: tileStyle(project.format).height } : undefined}
+        style={rail ? { height: tileStyle("portrait").height } : undefined}
       >
         <div className="size-full transition-transform duration-700 ease-page group-hover:scale-[1.03]">
-          <Media media={project.cover} mode="hover" sizes={sizes ?? (rail ? tileSizes(project.format) : "(min-width: 768px) 30vw, 100vw")} />
+          <Media media={project.cover} mode="hover" sizes={sizes ?? (rail ? tileSizes("portrait") : "(min-width: 768px) 30vw, 100vw")} />
         </div>
         {/* AI site "card-cursor": round arrow that scales in on hover / keyboard focus. */}
         <span
@@ -47,7 +48,7 @@ export function ProjectCard({
       </div>
       <div className="pt-[clamp(16px,calc(30*var(--u)),40px)]">
         <h3 className="text-card">{project.title}</h3>
-        <p className="mt-0.5 text-body text-muted">{project.category}</p>
+        <p className="mt-[clamp(3px,calc(5*var(--u)),7px)] text-body leading-[1.2] text-[#767676]">{project.category}</p>
       </div>
     </AppLink>
   );

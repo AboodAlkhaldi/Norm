@@ -13,7 +13,8 @@ import { afterIntro } from "@/lib/intro";
  */
 export function RotatingWord({
   words,
-  hold = 5.5,
+  // Seconds a word stays before flipping (owner: faster than Studio Size's ~5.4 s cycle).
+  hold = 3.5,
   startDelay = 1.6,
 }: {
   words: readonly string[];

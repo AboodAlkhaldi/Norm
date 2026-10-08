@@ -29,7 +29,7 @@ GSAP equivalents: `power4.out` for character flips, `power1.inOut` for line/medi
 - Owner decision: behaviour from the AI site, technique from Studio Size.
 - AI site: the word "creation" is split into letters. Every **7 s** cycle the current letters slide **up out** (`translateY(0 → -150%)`) while the next copy slides **up in** (`150% → 0`) between 78 % and 94 % of the cycle, letters staggered **32 ms**, easing `--ease-page`, inside an `overflow: hidden` mask. First load: letters rise from `130%` over **0.9 s**.
 - Studio Size: same idea with a GSAP timeline per word — chars `y: 150% → 0` in / `0 → -150%` out, **0.75 s**, `power4.out`, stagger **0.05 s**, `repeat: -1`. Starts after the heading's line reveal completes (+300 ms).
-- **Ours:** GSAP timeline, words from `home.ts` (`["creation"]` today — add words to rotate through them). Hold ≈ 5.5 s, flip 0.75 s `power4.out`, char stagger 0.04 s, mask overflow hidden. Screen readers get the static word.
+- **Ours:** GSAP timeline, words from `home.ts` (`["creation"]` today — add words to rotate through them). Hold ≈ 3.5 s (owner: faster; a word changes every ≈ 4.5 s), flip 0.75 s `power4.out`, char stagger 0.04 s, mask overflow hidden. Screen readers get the static word.
 
 ## 3. Line / text reveals on scroll
 
@@ -58,7 +58,7 @@ GSAP equivalents: `power4.out` for character flips, `power1.inOut` for line/medi
 
 - AI site `.service-row`: list items `#434343`, active row → white, text slides right by `5.556vw` (80 px @1440), **0.3 s ease-in-out**; the matching media fades in (`opacity 0.3 s ease-in`) while others fade out.
 - Studio Size services: hover starts the row's video after a **600 ms** hover intent.
-- **Ours (Studio Size, owner's request):** nothing is selected until a row is hovered/focused, and leaving the list clears it again. Active row → white + `translateX` 80 px @1440, 0.3 s ease-in-out. Each row has its own 541 × 406 video beside the list, level with its row (≥ 58 px under the "Services" label, kept inside the list); it fades in 0.3 s ease-in and starts after a 600 ms hover. Touch: the row crossing 40 % of the screen is active; the picture above the list keeps the last row's poster.
+- **Ours (Studio Size, owner's request):** the list has no entrance animation (it is simply there); nothing is selected until a row is hovered/focused, and leaving the list clears it again. Active row → white + `translateX` 80 px @1440, 0.3 s ease-in-out. Each row has its own 541 × 406 video beside the list, level with its row (≥ 58 px under the "Services" label, kept inside the list); it fades in 0.3 s ease-in and starts after a 600 ms hover. Touch: the row crossing 40 % of the screen is active; the picture above the list keeps the last row's poster.
 
 ## 8. Carousels — drag + arrows
 
