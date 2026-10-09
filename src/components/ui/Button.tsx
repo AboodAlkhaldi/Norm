@@ -10,9 +10,11 @@ type Variant = "outline" | "filled" | "light";
  * - "nav" (header only): "Get in touch" — 40px tall, 20px side padding.
  */
 const pillShape =
-  "inline-flex items-center justify-center whitespace-nowrap rounded-full border-2 text-ui tracking-[-0.01em] transition-[background-color,color,border-color] duration-300 ease-ui select-none";
-export const pillBase = `${pillShape} font-medium h-btn px-btn-x`;
-export const pillNav = `${pillShape} font-medium h-[clamp(36px,calc(40*var(--u)),50px)] px-[clamp(16px,calc(20*var(--u)),26px)]`;
+  "inline-flex items-center justify-center whitespace-nowrap rounded-full border-2 font-medium transition-[background-color,color,border-color] duration-300 ease-ui select-none";
+export const pillBase = `${pillShape} text-ui tracking-[-0.01em] h-btn px-btn-x`;
+/** Header pill. Text tuned so Clash Display matches Studio Size's Neue Haas 14px/500:
+ *  15px, -3.5 % tracking (word widths within 4 %, letter height 20 vs 21 px at 2x). */
+export const pillNav = `${pillShape} text-[clamp(13px,calc(15*var(--u)),20px)] tracking-[-0.035em] h-[clamp(36px,calc(40*var(--u)),50px)] px-[clamp(16px,calc(20*var(--u)),26px)]`;
 
 const variants: Record<Variant, string> = {
   // Studio Size: 2px #1d1d1d border on black

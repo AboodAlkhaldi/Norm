@@ -13,7 +13,8 @@ import { lockScroll } from "@/lib/lenis";
  * dark background after 150px. Layout = Studio Size at 1440: 21px from the top,
  * logo 24px tall at the 50px margin, links 14px medium 20px apart (2px underline
  * on hover / active page), "Get in touch" 40px pill 20px after the links. Set in the
- * site font (Clash Display, owner).
+ * site font (Clash Display, owner) at 15px / -3.5 % — measured to match Studio Size's
+ * 14px Neue Haas as closely as Clash allows (word widths within 4 %, near-equal letter height).
  */
 export function Header() {
   const pathname = usePathname();
@@ -77,7 +78,7 @@ export function Header() {
                 <AppLink
                   href={item.href}
                   aria-current={isActive(item.href) ? "page" : undefined}
-                  className="group relative py-1 text-ui font-medium tracking-[-0.01em]"
+                  className="group relative py-1 text-[clamp(13px,calc(15*var(--u)),20px)] font-medium tracking-[-0.035em]"
                 >
                   {item.label}
                   <span
