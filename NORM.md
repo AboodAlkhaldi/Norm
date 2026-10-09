@@ -244,3 +244,4 @@ These override the sections above where they differ.
 - **Hero word:** changes every ~4.5 s (was ~6.3 s; Studio Size ~5.4 s).
 - **Header font (owner: identical to Studio Size):** Studio Size uses Neue Haas Grotesk (paid Adobe font). Owner chose a free lookalike for the header only: **Inter Tight 600** (closest match by side-by-side tests: same stroke weight and letter height at 14px). Header links and "Get in touch" use it; the rest of the site stays Clash Display. "Get in touch" now sits on exactly Studio Size's box (118 × 40 at 1272, 21).
 - **Hero word:** flips about every 1.5 s (word holds 0.6 s; faster 0.6 s flip) — owner: "a second or something".
+- **Header font (update 2026-10-10):** owner asked for their Clash Display font in the header too — Inter Tight removed. Header keeps Studio Size's sizes, weight (medium), spacing and the 118 × 40 "Get in touch" box; only the letter shapes differ from Studio Size.

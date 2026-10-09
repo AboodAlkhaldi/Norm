@@ -1,6 +1,5 @@
 import type { Metadata, Viewport } from "next";
 import localFont from "next/font/local";
-import { Inter_Tight } from "next/font/google";
 import "./globals.css";
 import { site } from "@/content/site";
 import { NOINDEX } from "@/lib/env";
@@ -33,18 +32,6 @@ const clash = localFont({
   display: "swap",
 });
 
-/**
- * Header only (owner: identical to Studio Size, free lookalike): Inter Tight 600 is the
- * closest free match to Studio Size's Neue Haas Grotesk Text 500 (same stroke weight and
- * letter height at 14px, tested side by side).
- */
-const headerFont = Inter_Tight({
-  subsets: ["latin"],
-  weight: ["600"],
-  variable: "--font-inter-tight",
-  display: "swap",
-});
-
 // Site-wide defaults (pages add their own canonical URL through pageMetadata).
 const { alternates: _alternates, ...defaults } = pageMetadata({});
 void _alternates;
@@ -63,7 +50,7 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="en" className={`${clash.variable} ${headerFont.variable}`} suppressHydrationWarning>
+    <html lang="en" className={clash.variable} suppressHydrationWarning>
       <head>
         {/* Before first paint: marks JS as available (reveal targets start hidden, no flash) and
             decides whether the intro plays this session. */}

@@ -12,8 +12,8 @@ import { lockScroll } from "@/lib/lenis";
  * Header (MOTION.md §11): hides on scroll down, returns on scroll up,
  * dark background after 150px. Layout = Studio Size at 1440: 21px from the top,
  * logo 24px tall at the 50px margin, links 14px medium 20px apart (2px underline
- * on hover / active page), "Get in touch" 40px pill 20px after the links. Header text
- * uses Inter Tight 600, the closest free match to Studio Size's Neue Haas Grotesk 500.
+ * on hover / active page), "Get in touch" 40px pill 20px after the links. Set in the
+ * site font (Clash Display, owner).
  */
 export function Header() {
   const pathname = usePathname();
@@ -60,7 +60,7 @@ export function Header() {
       style={{ viewTransitionName: "site-header" }}
       // Tailwind v4 moves elements with the CSS `translate` property, so that is what transitions
       // (0.3s ease-in-out, as on Studio Size and the AI site).
-      className={`fixed inset-x-0 top-0 z-50 font-header transition-[translate,background-color] duration-300 ease-in-out ${
+      className={`fixed inset-x-0 top-0 z-50 transition-[translate,background-color] duration-300 ease-in-out ${
         // No transform at rest: a transform would trap the fixed mobile menu inside the header.
         hidden && !open ? "-translate-y-full" : ""
       } ${solid || open ? "bg-black/[0.88]" : "bg-transparent"}`}
@@ -77,7 +77,7 @@ export function Header() {
                 <AppLink
                   href={item.href}
                   aria-current={isActive(item.href) ? "page" : undefined}
-                  className="group relative py-1 text-ui font-semibold tracking-[-0.01em]"
+                  className="group relative py-1 text-ui font-medium tracking-[-0.01em]"
                 >
                   {item.label}
                   <span

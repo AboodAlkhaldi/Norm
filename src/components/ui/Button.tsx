@@ -12,8 +12,7 @@ type Variant = "outline" | "filled" | "light";
 const pillShape =
   "inline-flex items-center justify-center whitespace-nowrap rounded-full border-2 text-ui tracking-[-0.01em] transition-[background-color,color,border-color] duration-300 ease-ui select-none";
 export const pillBase = `${pillShape} font-medium h-btn px-btn-x`;
-/** Header pill: set in the header typeface (Inter Tight 600 ≈ Studio Size's Neue Haas 500). */
-export const pillNav = `${pillShape} font-header font-semibold h-[clamp(36px,calc(40*var(--u)),50px)] px-[clamp(16px,calc(20*var(--u)),26px)]`;
+export const pillNav = `${pillShape} font-medium h-[clamp(36px,calc(40*var(--u)),50px)] px-[clamp(16px,calc(20*var(--u)),26px)]`;
 
 const variants: Record<Variant, string> = {
   // Studio Size: 2px #1d1d1d border on black
